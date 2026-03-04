@@ -1,4 +1,3 @@
-```typescript
 import Papa from "papaparse";
 
 /**
@@ -15,7 +14,7 @@ export async function fetchGoogleSheet(csvUrl: string) {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch sheet: ${ response.status } ${ response.statusText } `);
+            throw new Error(`Failed to fetch sheet: ${response.status} ${response.statusText}`);
         }
 
         const csvText = await response.text();
@@ -129,4 +128,35 @@ export async function getHousingData(): Promise<any[]> {
     // This sheet is very strangely formatted, with lots of empty space.
     // We just want to extract the module components.
     return data;
+}
+
+// Fetch New Player Guide (Raw Unstructured Data)
+export async function getNewPlayerGuideRaw(): Promise<string[][]> {
+    try {
+        const URL = "https://docs.google.com/spreadsheets/d/1Xvjt5jnFPa8hJ88U6OEqXhIJ-3Pwfjpn9c5ppYVQekw/export?format=csv";
+        const res = await fetch(URL, {
+            next: { revalidate: 300 }
+        });
+        if (!res.ok) {
+            console.error("Failed to fetch New Player Guide CSV:", res.statusText);
+            return [];
+        }
+        const csvText = await res.text();
+        return new Promise((resolve) => {
+            Papa.parse(csvText, {
+                header: false, // We want raw arrays of strings so we can manually parse sections
+                skipEmptyLines: true,
+                complete: (results) => {
+                    resolve(results.data as string[][]);
+                },
+                error: (error: any) => {
+                    console.error("Error parsing New Player csv:", error);
+                    resolve([]);
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error fetching New Player Guide:", error);
+        return [];
+    }
 }

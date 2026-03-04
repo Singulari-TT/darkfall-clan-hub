@@ -8,6 +8,7 @@ export default function DatabaseLayout({
 }) {
     const tabs = [
         { name: "Overview", href: "/database", icon: BookOpen },
+        { name: "New Player Guide", href: "/database/guide", icon: Scroll },
         { name: "Bestiary", href: "/database/bestiary", icon: Skull },
         { name: "Crafting & Alchemy", href: "/database/crafting", icon: Scroll },
         { name: "Dungeons", href: "/database/dungeons", icon: Map },

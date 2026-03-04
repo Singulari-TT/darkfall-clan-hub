@@ -1,6 +1,8 @@
 import { fetchAuditLogs, AuditLog } from "../../api/admin/actions";
 import { formatDistanceToNow } from "date-fns";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AuditTrailPage() {
     const logs = await fetchAuditLogs();
 
