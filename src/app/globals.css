@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #0e0c10;
+  --color-foreground: #d1d5db; /* gray-300 */
+  
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-cinzel);
+
+  /* Dreadkrew Thematics */
+  --color-dread-red: #8b0000;
+  --color-dread-dark: #1a151b;
+  --color-dread-gold: #c5a059;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  /* subtle dark texture overlay can go here if needed */
+}
+
+/* Custom Scrollbar for the dark fantasy feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0e0c10; 
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f46; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b; 
+}
