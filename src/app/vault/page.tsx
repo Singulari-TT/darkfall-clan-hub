@@ -1,6 +1,10 @@
 import { supabase } from "@/lib/supabase";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import Link from "next/link";
 
 export default async function Vault() {
+    const session = await getServerSession(authOptions);
     const { data: inventory, error } = await supabase
         .from("Bank_Inventory")
         .select("*")
@@ -20,9 +24,17 @@ export default async function Vault() {
                         <h1 className="text-5xl font-black bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 text-transparent bg-clip-text drop-shadow-sm tracking-tight">The Vault</h1>
                         <p className="text-gray-400 mt-3 text-lg font-medium">Clan Treasury and Current Material Goals</p>
                     </div>
-                    <div className="text-sm px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-500 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Live Synchronization
+
+                    <div className="flex items-center gap-4">
+                        {session?.user && (session.user as any).role === 'Admin' && (
+                            <Link href="/donations" className="text-sm px-4 py-2 bg-gradient-to-r from-amber-600/20 to-orange-600/10 hover:from-amber-600/40 hover:to-orange-600/30 border border-amber-500/30 hover:border-amber-400 rounded-lg text-amber-500 font-bold transition-all shadow-[0_0_15px_rgba(245,158,11,0.1)] flex items-center gap-2">
+                                <span>📜</span> Manage Ledger
+                            </Link>
+                        )}
+                        <div className="text-sm px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-gray-500 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live Synchronization
+                        </div>
                     </div>
                 </header>
 

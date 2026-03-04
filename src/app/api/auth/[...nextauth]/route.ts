@@ -58,20 +58,24 @@ export const authOptions = {
             if (!token.dbId && token.sub) {
                 const { data } = await supabaseAdmin
                     .from("Users")
-                    .select("id")
+                    .select("id, role, status")
                     .eq("discord_id", token.sub)
                     .single();
 
                 if (data) {
                     token.dbId = data.id;
+                    token.role = data.role;
+                    token.status = data.status;
                 }
             }
             return token;
         },
         async session({ session, token }: any) {
-            // Send the Supabase mapped UUID to the client, NOT the discord ID string
+            // Send the Supabase mapped properties to the client
             if (token.dbId) {
                 session.user.id = token.dbId as string;
+                (session.user as any).role = token.role as string;
+                (session.user as any).status = token.status as string;
             } else {
                 session.user.id = token.sub; // Fallback entirely if db query fails
             }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Scroll, Skull, Home, Map } from "lucide-react";
+import { BookOpen, Scroll, Skull, Home, Map, Upload } from "lucide-react";
 
 export default function DatabaseLayout({
     children,
@@ -12,6 +12,7 @@ export default function DatabaseLayout({
         { name: "Crafting & Alchemy", href: "/database/crafting", icon: Scroll },
         { name: "Dungeons", href: "/database/dungeons", icon: Map },
         { name: "Housing Modules", href: "/database/housing", icon: Home },
+        { name: "Submit Intel (Loot)", href: "/database/intel", icon: Upload },
     ];
 
     return (

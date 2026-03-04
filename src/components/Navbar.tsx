@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import GlobalSearch from "./GlobalSearch";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -23,14 +24,9 @@ export default function Navbar() {
 
     const navItems = [
         { label: "Command", href: "/", icon: "🏰" },
-        { label: "Vault", href: "/vault", icon: "💰" },
         { label: "Roster", href: "/directory", icon: "🛡️" },
         { label: "War Room", href: "/map", icon: "🗺️" },
-        { label: "Intel", href: "/intel", icon: "📜" },
-        { label: "Directives", href: "/goals", icon: "⚔️" },
-        { label: "Operations", href: "/operations", icon: "🔥" },
         { label: "Bank Market", href: "/bank-market", icon: "⚖️" },
-        { label: "Database", href: "/database", icon: "📚" },
     ];
 
     return (
@@ -44,6 +40,11 @@ export default function Navbar() {
                                 DREADKREW
                             </span>
                         </Link>
+                    </div>
+
+                    {/* Magic Search Bar */}
+                    <div className="hidden md:flex flex-1 justify-center px-8">
+                        <GlobalSearch />
                     </div>
 
                     {/* Navigation Links */}

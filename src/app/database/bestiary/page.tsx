@@ -1,8 +1,35 @@
 import { getBestiaryData } from "@/lib/sheets";
-import { Skull, Droplets, Zap, Sparkles, Flame, Snowflake, Shield } from "lucide-react";
+import { supabaseAdmin } from "@/lib/supabase";
+import { Skull, Droplets, Zap, Sparkles, Flame, Snowflake, Shield, Coins, Gift } from "lucide-react";
 
 export default async function BestiaryPage() {
     const monsters = await getBestiaryData();
+
+    // Fetch crowdsourced Intel Loot
+    const { data: lootData } = await supabaseAdmin
+        .from("Intel_Loot")
+        .select("monster_name, gold_dropped, items_dropped");
+
+    // Aggregate loot by monster
+    const lootByMonster: Record<string, {
+        goldValues: number[],
+        items: Set<string>
+    }> = {};
+
+    if (lootData) {
+        for (const row of lootData) {
+            const name = row.monster_name.toLowerCase();
+            if (!lootByMonster[name]) {
+                lootByMonster[name] = { goldValues: [], items: new Set() };
+            }
+            if (row.gold_dropped > 0) {
+                lootByMonster[name].goldValues.push(row.gold_dropped);
+            }
+            if (Array.isArray(row.items_dropped)) {
+                row.items_dropped.forEach((item: string) => lootByMonster[name].items.add(item));
+            }
+        }
+    }
 
     // Helper to colorize the resistances or weaknesses based on element name
     const renderElements = (elementString: string | undefined, isWeakness: boolean) => {
@@ -111,10 +138,53 @@ export default async function BestiaryPage() {
 
                             </div>
 
+                            {/* Crowdsourced Loot Data */}
+                            <div className="mt-4 pt-3 border-t border-white/5 space-y-2">
+                                <span className="text-[10px] uppercase text-gray-500 font-bold tracking-widest block flex items-center gap-1">
+                                    <Gift className="w-3 h-3 text-amber-500 opacity-80" />
+                                    Confirmed Loot Intel
+                                </span>
+
+                                {(() => {
+                                    const stats = lootByMonster[monster.Name.toLowerCase()];
+                                    if (!stats || (stats.goldValues.length === 0 && stats.items.size === 0)) {
+                                        return <span className="text-xs text-gray-600 italic block">No intel submitted yet.</span>;
+                                    }
+
+                                    const avgGold = stats.goldValues.length > 0
+                                        ? Math.round(stats.goldValues.reduce((a, b) => a + b, 0) / stats.goldValues.length)
+                                        : 0;
+                                    const maxGold = stats.goldValues.length > 0 ? Math.max(...stats.goldValues) : 0;
+
+                                    return (
+                                        <div className="space-y-2">
+                                            {stats.goldValues.length > 0 && (
+                                                <div className="flex items-center justify-between text-xs bg-black/30 px-2 py-1 rounded border border-amber-900/20">
+                                                    <span className="text-gray-400">Avg Gold Drop:</span>
+                                                    <span className="text-amber-400 font-bold flex items-center gap-1">
+                                                        <Coins className="w-3 h-3" />
+                                                        {avgGold}g / {maxGold}g max
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {stats.items.size > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {Array.from(stats.items).map((item, i) => (
+                                                        <span key={i} className="text-[10px] text-amber-100 bg-amber-950/40 border border-amber-900/50 px-1.5 py-0.5 rounded">
+                                                            {item}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
                             {/* Footer / Notes */}
                             {monster.Notes && monster.Notes.trim() !== "" && (
                                 <div className="mt-4 pt-3 border-t border-white/5 text-xs text-gray-500 italic">
-                                    {monster.Notes}
+                                    Notes: {monster.Notes}
                                 </div>
                             )}
 

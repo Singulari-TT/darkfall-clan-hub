@@ -18,6 +18,13 @@ export default withAuth(
             return NextResponse.redirect(new URL('/login', req.url))
         }
 
+        // If authenticated but Pending, force them to the waiting-approval page
+        if (isAuth && token?.status === 'Pending') {
+            if (req.nextUrl.pathname !== '/waiting-approval' && !req.nextUrl.pathname.startsWith('/api/')) {
+                return NextResponse.redirect(new URL('/waiting-approval', req.url))
+            }
+        }
+
         return NextResponse.next()
     },
     {

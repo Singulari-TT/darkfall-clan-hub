@@ -1,3 +1,4 @@
+```typescript
 import Papa from "papaparse";
 
 /**
@@ -14,7 +15,7 @@ export async function fetchGoogleSheet(csvUrl: string) {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch sheet: ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to fetch sheet: ${ response.status } ${ response.statusText } `);
         }
 
         const csvText = await response.text();

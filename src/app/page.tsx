@@ -141,6 +141,18 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* Card: Database */}
+          <Link href="/database" className="group relative overflow-hidden bg-gradient-to-br from-[#1a151b] to-black border border-blue-900/30 rounded-lg p-6 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-all flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-900/10 rounded-full blur-3xl group-hover:bg-blue-600/10 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-blue-900/50 to-black flex items-center justify-center border border-blue-800/50 group-hover:border-blue-500 group-hover:scale-105 transition-all shadow-inner shadow-black">
+              <span className="text-2xl">📚</span>
+            </div>
+            <div className="flex flex-col justify-center h-full z-10">
+              <h2 className="text-xl font-heading font-bold text-gray-200 mb-1 group-hover:text-blue-400 transition-colors tracking-widest uppercase">Database</h2>
+              <p className="text-stone-400 text-sm leading-relaxed">Search for monsters, crafting recipes, dungeons, and housing knowledge.</p>
+            </div>
+          </Link>
+
           {/* Card: Marketplace */}
           <Link href="/marketplace" className="group relative overflow-hidden bg-gradient-to-br from-[#1a151b] to-black border border-orange-900/30 rounded-lg p-6 hover:border-orange-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.1)] transition-all flex items-start gap-5">
             <div className="absolute top-0 right-0 w-40 h-40 bg-orange-900/10 rounded-full blur-3xl group-hover:bg-orange-600/10 transition-colors -mr-10 -mt-10"></div>
