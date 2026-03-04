@@ -55,7 +55,7 @@ export default function Navbar() {
                                 <>
                                     <Link
                                         href="/admin/audit"
-                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${pathname.startsWith('/admin')
+                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${pathname?.startsWith('/admin')
                                             ? "bg-red-950/60 text-amber-500 border border-red-900/50 shadow-inner"
                                             : "text-gray-400 hover:text-amber-400 hover:bg-white/5"
                                             }`}
