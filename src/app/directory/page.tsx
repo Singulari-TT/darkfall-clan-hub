@@ -35,7 +35,8 @@ export default async function Directory() {
         admin_only
       )
     `)
-        .eq("status", "Active");
+        .eq("status", "Active")
+        .neq("discord_id", "mock_discord_admin");
 
     if (error) {
         console.error("Error fetching directory:", error);
@@ -72,14 +73,14 @@ export default async function Directory() {
                         const isAdminRole = user.role === 'Admin';
 
                         return (
-                            <div key={user.id} className={`bg-[#1a151b]/80 border ${isCurrentUser ? 'border-[#c5a059] shadow-[0_0_20px_rgba(197,160,89,0.2)]' : 'border-red-900/30'} rounded-xl overflow-hidden hover:border-red-500/50 transition-all group backdrop-blur-sm relative flex flex-col`}>
+                            <div key={user.id} className={`bg - [#1a151b] / 80 border ${isCurrentUser ? 'border-[#c5a059] shadow-[0_0_20px_rgba(197,160,89,0.2)]' : 'border-red-900/30'} rounded - xl overflow - hidden hover: border - red - 500 / 50 transition - all group backdrop - blur - sm relative flex flex - col`}>
                                 {/* Header banner style */}
-                                <div className={`h-[72px] w-full ${isAdminRole ? 'bg-gradient-to-r from-red-950 to-black border-b border-red-900/50' : 'bg-black/50 border-b border-stone-800'}`}>
+                                <div className={`h - [72px] w - full ${isAdminRole ? 'bg-gradient-to-r from-red-950 to-black border-b border-red-900/50' : 'bg-black/50 border-b border-stone-800'}`}>
                                     {isAdminRole && <div className="absolute top-0 right-0 w-32 h-32 bg-red-900/20 rounded-full blur-3xl pointer-events-none -mt-10 -mr-10"></div>}
                                 </div>
 
                                 {/* Avatar placeholder sitting on the border */}
-                                <div className={`absolute top-8 left-6 w-16 h-16 rounded-full border-2 ${isCurrentUser ? 'border-[#c5a059]' : 'border-[#1a151b]'} bg-gradient-to-br from-stone-800 to-black flex items-center justify-center shadow-lg overflow-hidden group-hover:border-[#c5a059]/50 transition-colors z-10`}>
+                                <div className={`absolute top - 8 left - 6 w - 16 h - 16 rounded - full border - 2 ${isCurrentUser ? 'border-[#c5a059]' : 'border-[#1a151b]'} bg - gradient - to - br from - stone - 800 to - black flex items - center justify - center shadow - lg overflow - hidden group - hover: border - [#c5a059] / 50 transition - colors z - 10`}>
                                     <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{isAdminRole ? '👑' : '🛡️'}</span>
                                 </div>
 
@@ -90,7 +91,7 @@ export default async function Directory() {
                                                 {user.display_name || "Unknown Initiated"}
                                             </h2>
                                             <div className="flex gap-2 items-center mt-1.5 flex-wrap">
-                                                <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${isAdminRole ? 'bg-red-950 text-[#c5a059] border-[#c5a059]/30' : 'bg-stone-900 text-stone-400 border-stone-700'}`}>
+                                                <span className={`text - [9px] uppercase tracking - widest font - bold px - 2 py - 0.5 rounded border ${isAdminRole ? 'bg-red-950 text-[#c5a059] border-[#c5a059]/30' : 'bg-stone-900 text-stone-400 border-stone-700'}`}>
                                                     {user.role}
                                                 </span>
                                                 {isCurrentUser && <span className="text-[9px] uppercase tracking-widest font-bold bg-[#c5a059]/20 text-[#c5a059] px-2 py-0.5 rounded border border-[#c5a059]/30">You</span>}

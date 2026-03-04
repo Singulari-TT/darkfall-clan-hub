@@ -7,7 +7,7 @@ export default function Login() {
         <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
             <div className="p-10 bg-gray-800 rounded-xl shadow-2xl space-y-6 text-center border border-gray-700 max-w-md w-full">
                 <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
-                    Darkfall Clan Hub
+                    Dreadkrew Hub
                 </h1>
                 <p className="text-gray-400">
                     Authenticate with Discord to access the Vault, Member Directory, and Intel system.

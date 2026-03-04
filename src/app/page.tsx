@@ -154,7 +154,7 @@ export default function Home() {
           </Link>
 
           {/* Card: Marketplace */}
-          <Link href="/marketplace" className="group relative overflow-hidden bg-gradient-to-br from-[#1a151b] to-black border border-orange-900/30 rounded-lg p-6 hover:border-orange-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.1)] transition-all flex items-start gap-5">
+          <Link href="/bank-market" className="group relative overflow-hidden bg-gradient-to-br from-[#1a151b] to-black border border-orange-900/30 rounded-lg p-6 hover:border-orange-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.1)] transition-all flex items-start gap-5">
             <div className="absolute top-0 right-0 w-40 h-40 bg-orange-900/10 rounded-full blur-3xl group-hover:bg-orange-600/10 transition-colors -mr-10 -mt-10"></div>
             <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-orange-900/50 to-black flex items-center justify-center border border-orange-800/50 group-hover:border-orange-500 group-hover:scale-105 transition-all shadow-inner shadow-black">
               <span className="text-2xl">⚖️</span>

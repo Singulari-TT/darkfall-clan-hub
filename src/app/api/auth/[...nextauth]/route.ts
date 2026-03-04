@@ -58,7 +58,7 @@ export const authOptions = {
             if (!token.dbId && token.sub) {
                 const { data } = await supabaseAdmin
                     .from("Users")
-                    .select("id, role, status")
+                    .select("id, role, status, display_name")
                     .eq("discord_id", token.sub)
                     .single();
 
@@ -66,6 +66,7 @@ export const authOptions = {
                     token.dbId = data.id;
                     token.role = data.role;
                     token.status = data.status;
+                    token.displayName = data.display_name;
                 }
             }
             return token;
@@ -76,6 +77,7 @@ export const authOptions = {
                 session.user.id = token.dbId as string;
                 (session.user as any).role = token.role as string;
                 (session.user as any).status = token.status as string;
+                (session.user as any).displayName = token.displayName as string | null;
             } else {
                 session.user.id = token.sub; // Fallback entirely if db query fails
             }

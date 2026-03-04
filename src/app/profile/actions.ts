@@ -41,7 +41,7 @@ export async function fetchMyProfile() {
                 admin_only
             )
         `)
-        .eq("discord_id", session.user.id)
+        .eq("id", session.user.id)
         .single();
 
     if (error) {
@@ -61,7 +61,7 @@ export async function updateDisplayName(newName: string) {
     const { error } = await supabase
         .from("Users")
         .update({ display_name: newName })
-        .eq("discord_id", session.user.id);
+        .eq("id", session.user.id);
 
     if (error) {
         console.error("Error updating display name:", error);
@@ -79,7 +79,7 @@ export async function updateBio(newBio: string) {
     const { error } = await supabase
         .from("Users")
         .update({ bio: newBio })
-        .eq("discord_id", session.user.id);
+        .eq("id", session.user.id);
 
     if (error) {
         console.error("Error updating bio:", error);
@@ -98,7 +98,7 @@ export async function addCharacter(name: string, is_visible: boolean, admin_only
     const { data: userRecord } = await supabase
         .from("Users")
         .select("id")
-        .eq("discord_id", session.user.id)
+        .eq("id", session.user.id)
         .single();
 
     if (!userRecord) throw new Error("Could not find database user.");
@@ -127,7 +127,7 @@ export async function deleteCharacter(charId: string) {
     const { data: userRecord } = await supabase
         .from("Users")
         .select("id")
-        .eq("discord_id", session.user.id)
+        .eq("id", session.user.id)
         .single();
 
     if (!userRecord) throw new Error("Unauthorized");

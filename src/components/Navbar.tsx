@@ -98,7 +98,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex flex-col items-end">
                             <span className="text-xs text-gray-500 font-heading tracking-widest uppercase">Krew Member</span>
-                            <span className="text-sm font-bold text-gray-200">{session.user.name}</span>
+                            <span className="text-sm font-bold text-gray-200">{(session.user as any).displayName || session.user.name}</span>
                         </div>
                         <button
                             onClick={() => signOut({ callbackUrl: '/login' })}
