@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${cinzel.variable} font-sans antialiased bg-[#0e0c10] text-gray-300 min-h-screen`}
+        className={`${inter.variable} ${cinzel.variable} font-sans antialiased bg-[#0D1117] text-gray-300 min-h-screen`}
       >
         <Providers>
           <ActivityTracker />

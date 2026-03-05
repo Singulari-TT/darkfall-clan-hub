@@ -3,15 +3,16 @@
 import { supabase } from "@/lib/supabase";
 
 export async function getOnlineCount() {
-    const { count, error } = await supabase
-        .from('Characters')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_online', true);
+    const { data, error } = await supabase
+        .from('SystemConfig')
+        .select('value')
+        .eq('key', 'members_logged_in')
+        .single();
 
     if (error) {
-        console.error("Error fetching online count:", error);
+        // Failing silently to 0 if the table doesn't exist yet
         return 0;
     }
 
-    return count || 0;
+    return data?.value ? parseInt(data.value, 10) : 0;
 }

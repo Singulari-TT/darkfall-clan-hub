@@ -24,6 +24,12 @@ export default function ScannerPage() {
 
         if (!imageFile) return;
 
+        // Prevent users from pasting massive full-screen images that crash the OCR
+        if (imageFile.size > 2 * 1024 * 1024) { // 2MB limit
+            setMessage({ text: "Image is too massive! OCR requires you to clip just the small tooltip box.", type: 'error' });
+            return;
+        }
+
         // Display preview
         const reader = new FileReader();
         reader.onload = (e) => {

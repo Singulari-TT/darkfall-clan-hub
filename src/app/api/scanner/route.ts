@@ -19,12 +19,23 @@ export async function POST(req: Request) {
 
         // 1. Run OCR on the image to find the item name
         const worker = await createWorker('eng');
-        const ret = await worker.recognize(imageBase64);
+
+        // Add a 10 second timeout promise to prevent Vercel Serverless Function hanging
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Neural OCR engine timed out. Make sure you cropped the image tightly around the text.")), 10000);
+        });
+
+        // Race tesseract against our 10 second timeout
+        const ret = await Promise.race([
+            worker.recognize(imageBase64),
+            timeoutPromise
+        ]) as any;
+
         const text = ret.data.text;
         await worker.terminate();
 
         // The name is typically the very first line of the tooltip
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
         if (lines.length === 0) {
             return NextResponse.json({ error: "Could not read any text from the provided image." }, { status: 400 });
         }

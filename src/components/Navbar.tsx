@@ -32,13 +32,16 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className="bg-[#0e0c10] border-b border-red-900/30 sticky top-0 z-[5000] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <nav className="bg-[#0D1117]/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-[5000] shadow-[0_4px_30px_rgba(0,0,0,0.5)] transition-all">
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo / Brand */}
                     <div className="flex-shrink-0">
-                        <Link href="/" className="flex items-center gap-2">
-                            <span className="text-xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-r from-red-700 to-amber-500 tracking-wider drop-shadow-sm">
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#5865F2] to-[#4752C4] shadow-[0_0_15px_rgba(88,101,242,0.5)] flex items-center justify-center">
+                                <span className="text-white font-bold tracking-tighter">DK</span>
+                            </div>
+                            <span className="text-xl font-heading font-black text-white tracking-widest drop-shadow-sm group-hover:text-blue-400 transition-colors">
                                 DREADKREW
                             </span>
                         </Link>
@@ -51,7 +54,7 @@ export default function Navbar() {
 
                     {/* Navigation Links */}
                     <div className="hidden md:block">
-                        <div className="ml-10 flex items-baseline space-x-1">
+                        <div className="ml-10 flex items-baseline space-x-2">
                             {/* Admin links moved to AdminSidebar */}
                             {navItems.map((item) => {
                                 const isActive = pathname === item.href;
@@ -59,12 +62,12 @@ export default function Navbar() {
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${isActive
-                                            ? "bg-red-950/40 text-[#c5a059] border border-red-900/30 shadow-[inset_0_0_10px_rgba(139,0,0,0.2)]"
-                                            : "text-gray-400 hover:text-[#c5a059] hover:bg-white/5"
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${isActive
+                                            ? "bg-[#5865F2]/10 text-[#5865F2] border border-[#5865F2]/30 shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
+                                            : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
                                             }`}
                                     >
-                                        <span className="opacity-80">{item.icon}</span>
+                                        <span className={`opacity-80 transition-transform ${isActive ? 'scale-110' : ''}`}>{item.icon}</span>
                                         {item.label}
                                     </Link>
                                 );
@@ -73,16 +76,16 @@ export default function Navbar() {
                     </div>
 
                     {/* User Menu */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-5">
                         <div className="hidden md:flex flex-col items-end">
-                            <span className="text-xs text-gray-500 font-heading tracking-widest uppercase">Krew Member</span>
-                            <span className="text-sm font-bold text-gray-200">{(session.user as any).displayName || session.user.name}</span>
+                            <span className="text-[10px] text-gray-500 font-heading tracking-widest uppercase mb-0.5">Operative</span>
+                            <span className="text-sm font-bold text-gray-100">{(session.user as any).displayName || session.user.name}</span>
                         </div>
                         <button
                             onClick={() => signOut({ callbackUrl: '/login' })}
-                            className="text-xs font-bold text-red-500 hover:text-white bg-red-900/20 hover:bg-red-800 border border-red-900/50 px-4 py-1.5 rounded uppercase tracking-wider transition-all"
+                            className="text-xs font-bold text-gray-400 hover:text-white bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/50 px-4 py-2 rounded-lg transition-all shadow-sm"
                         >
-                            Disconnect
+                            Log Out
                         </button>
                     </div>
                 </div>
