@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 export default function ScannerPage() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [preview, setPreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
@@ -71,6 +71,14 @@ export default function ScannerPage() {
         };
     }, [handlePaste]);
 
+    if (status === "loading") {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="w-12 h-12 rounded-full border-4 border-[#c5a059] border-t-transparent animate-spin"></div>
+            </div>
+        );
+    }
+
     if (!session?.user) return null;
 
     return (
@@ -114,8 +122,8 @@ export default function ScannerPage() {
                 <div className="space-y-6">
                     {message && (
                         <div className={`p-4 rounded-xl border flex items-start gap-4 shadow-lg ${message.type === 'error' ? 'bg-red-950/50 border-red-900 text-red-400' :
-                                message.type === 'success' ? 'bg-emerald-950/50 border-emerald-900 text-emerald-400' :
-                                    'bg-blue-950/50 border-blue-900 text-blue-400'
+                            message.type === 'success' ? 'bg-emerald-950/50 border-emerald-900 text-emerald-400' :
+                                'bg-blue-950/50 border-blue-900 text-blue-400'
                             }`}>
                             <span className="text-xl">
                                 {message.type === 'error' ? '❌' : message.type === 'success' ? '✅' : 'ℹ️'}

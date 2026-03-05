@@ -36,7 +36,10 @@ export default async function AdminLayout({
                 </p>
 
                 {/* Internal Admin Navigation Tabs */}
-                <div className="flex gap-4 mt-6">
+                <div className="flex flex-wrap gap-4 mt-6">
+                    <a href="/admin/scanner" className="px-4 py-2 bg-[#1a151b] border border-red-900/50 hover:border-red-500 rounded text-xs font-bold font-heading uppercase tracking-widest text-[#c5a059] transition-all shadow-[inset_0_0_10px_rgba(139,0,0,0.2)]">
+                        Item Scanner
+                    </a>
                     <a href="/admin/audit" className="px-4 py-2 bg-[#1a151b] border border-red-900/50 hover:border-red-500 rounded text-xs font-bold font-heading uppercase tracking-widest text-[#c5a059] transition-all shadow-[inset_0_0_10px_rgba(139,0,0,0.2)]">
                         Audit Logs
                     </a>
