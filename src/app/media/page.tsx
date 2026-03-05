@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { hideMedia } from "./actions";
+import { useSession } from "next-auth/react";
 
 export interface YouTubeVideo {
     id: { videoId: string };
@@ -20,6 +22,8 @@ export default function MediaPipeline() {
     const [videos, setVideos] = useState<YouTubeVideo[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [hidingIds, setHidingIds] = useState<Set<string>>(new Set());
+    const { data: session } = useSession();
 
     useEffect(() => {
         const fetchVideos = async () => {
@@ -45,6 +49,27 @@ export default function MediaPipeline() {
 
         fetchVideos();
     }, []);
+
+    const handleHide = async (videoId: string) => {
+        if (!session?.user?.id) return;
+
+        // Optimistic UI update
+        setHidingIds(prev => new Set(prev).add(videoId));
+
+        const res = await hideMedia(videoId, session.user.id);
+
+        if (res.success) {
+            setVideos(prev => prev.filter(v => v.id.videoId !== videoId));
+        } else {
+            console.error("Failed to hide:", res.error);
+        }
+
+        setHidingIds(prev => {
+            const next = new Set(prev);
+            next.delete(videoId);
+            return next;
+        });
+    };
 
     return (
         <div className="min-h-screen bg-transparent text-gray-300 p-4 sm:p-8 font-sans selection:bg-red-900/50">
@@ -103,10 +128,26 @@ export default function MediaPipeline() {
                                             </div>
                                         </a>
                                     </div>
-                                    <div className="p-5 flex flex-col flex-1">
-                                        <h2 className="text-lg font-bold text-gray-100 line-clamp-2 mb-2 group-hover:text-[#c5a059] transition-colors leading-tight">
-                                            {video.snippet.title}
-                                        </h2>
+                                    <div className="p-5 flex flex-col flex-1 relative">
+                                        <div className="flex justify-between items-start gap-2 mb-2">
+                                            <h2 className="text-lg font-bold text-gray-100 line-clamp-2 group-hover:text-[#c5a059] transition-colors leading-tight">
+                                                {video.snippet.title}
+                                            </h2>
+                                            {session?.user && (
+                                                <button
+                                                    onClick={() => handleHide(video.id.videoId)}
+                                                    disabled={hidingIds.has(video.id.videoId)}
+                                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-stone-500 hover:text-red-500 p-1 rounded hover:bg-red-950/30 flex-shrink-0"
+                                                    title="Remove unrelated video"
+                                                >
+                                                    {hidingIds.has(video.id.videoId) ? (
+                                                        <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
                                         <p className="text-sm text-gray-400 line-clamp-2 mb-4 flex-1">
                                             {video.snippet.description}
                                         </p>
