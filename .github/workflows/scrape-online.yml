@@ -23,5 +23,6 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          CLAN_NEWS_URL: ${{ secrets.CLAN_NEWS_URL }}
+          DARKFALL_USERNAME: ${{ secrets.DARKFALL_USERNAME }}
+          DARKFALL_PASSWORD: ${{ secrets.DARKFALL_PASSWORD }}
         run: node scripts/parse_online_cron.js

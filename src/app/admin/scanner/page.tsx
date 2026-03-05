@@ -115,11 +115,10 @@ export default function ScannerPage() {
             await worker.terminate();
 
             const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
-            if (lines.length === 0) {
-                throw new Error("Could not read any text from the provided image.");
-            }
 
-            const extractedName = lines[0];
+            // If Tesseract couldn't find ANY text, don't crash the scanner.
+            // Just present an empty confirmation box so the user can manually type it.
+            const extractedName = lines.length > 0 ? lines[0] : "";
 
             // Allow user to manually confirm before uploading
             setScannedName(extractedName);

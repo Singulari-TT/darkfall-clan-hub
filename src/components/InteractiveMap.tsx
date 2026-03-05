@@ -226,17 +226,17 @@ export default function InteractiveMap() {
             <div className="col-span-1 flex flex-col gap-4 order-last lg:order-first h-full overflow-y-auto pr-2 custom-scrollbar">
 
                 {/* Info Panel */}
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
-                    <h2 className="text-xl font-bold bg-gradient-to-r from-rose-400 to-orange-500 bg-clip-text text-transparent flex items-center gap-2 mb-1">
-                        <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                        War Room Live
+                <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-1">
+                        <span className="w-2 h-2 rounded-full bg-[#5865F2] animate-ping"></span>
+                        <span className="text-[#5865F2]">War Room</span> Live
                     </h2>
-                    <p className="text-xs text-gray-400">Command and Conquer Coordination</p>
+                    <p className="text-xs text-gray-400 font-mono">Command and Conquer Coordination</p>
                 </div>
 
                 {/* Tactical Tools */}
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl flex-1">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">Tactical Orders</h3>
+                <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl flex-1">
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-white/10 pb-2">Tactical Orders</h3>
                     <div className="flex flex-col gap-2">
                         {[
                             { id: 'attack', icon: '⚔', label: 'Attack', color: 'hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-gray-400', active: 'bg-rose-500/20 text-rose-400 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]' },
@@ -247,41 +247,40 @@ export default function InteractiveMap() {
                             <button
                                 key={tool.id}
                                 onClick={() => setSelectedTool(selectedTool === tool.id ? null : tool.id)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all border font-medium w-full text-left
-                                    ${selectedTool === tool.id ? tool.active : `border-gray-800 bg-gray-950/50 ${tool.color}`}
-                                `}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all border font-bold text-sm tracking-wide w-full text-left
+                                    ${selectedTool === tool.id ? tool.active : `border-white/5 bg-white/5 ${tool.color}`}`}
                             >
                                 <span className="text-xl w-6 text-center">{tool.icon}</span>
-                                <span className="text-sm flex-1">{tool.label}</span>
-                                {selectedTool === tool.id && <span className="text-xs text-white bg-white/20 px-2 py-0.5 rounded-full">Active</span>}
+                                <span className="flex-1">{tool.label}</span>
+                                {selectedTool === tool.id && <span className="text-[10px] uppercase tracking-widest text-white bg-white/20 px-2 py-0.5 rounded-md">Active</span>}
                             </button>
                         ))}
                     </div>
                     {selectedTool === 'draw' && (
-                        <div className="mt-4 p-3 bg-gray-950/50 border border-fuchsia-500/20 rounded-xl">
-                            <h4 className="text-xs text-gray-400 font-bold mb-2 uppercase tracking-wide">Marker Color</h4>
+                        <div className="mt-4 p-4 bg-white/5 border border-fuchsia-500/20 rounded-xl">
+                            <h4 className="text-xs text-gray-400 font-bold mb-3 uppercase tracking-widest">Marker Color</h4>
                             <div className="flex gap-2">
                                 {['#d946ef', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ffffff'].map(color => (
                                     <button
                                         key={color}
                                         onClick={() => setDrawingColor(color)}
-                                        className={`w-6 h-6 rounded-full border-2 transition-transform ${drawingColor === color ? 'scale-125 border-white' : 'border-transparent hover:scale-110'}`}
+                                        className={`w-7 h-7 rounded-full border-2 transition-transform shadow-inner ${drawingColor === color ? 'scale-125 border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border-transparent hover:scale-110'}`}
                                         style={{ backgroundColor: color }}
                                     />
                                 ))}
                             </div>
-                            <div className="flex gap-2 mt-3">
+                            <div className="flex gap-2 mt-4">
                                 <button
                                     onClick={handleUndo}
                                     disabled={lines.length === 0}
-                                    className="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-xs font-bold py-1.5 rounded transition-colors text-gray-300"
+                                    className="flex-1 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-xs font-bold py-2 rounded-lg transition-colors text-gray-300 border border-white/5 uppercase tracking-widest"
                                 >
                                     ↩ Undo
                                 </button>
                                 <button
                                     onClick={clearDrawings}
                                     disabled={lines.length === 0}
-                                    className="flex-1 bg-rose-500/20 hover:bg-rose-500/30 disabled:opacity-50 text-xs font-bold py-1.5 rounded transition-colors text-rose-400"
+                                    className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 disabled:opacity-50 text-xs font-bold py-2 rounded-lg transition-colors text-rose-400 border border-rose-500/20 uppercase tracking-widest"
                                 >
                                     🗑️ Clear All
                                 </button>
@@ -290,8 +289,8 @@ export default function InteractiveMap() {
                     )}
 
                     {selectedTool && selectedTool !== 'draw' && (
-                        <div className="mt-4 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-center">
-                            <p className="text-xs text-indigo-300 font-medium tracking-wide">
+                        <div className="mt-4 p-3 bg-[#5865F2]/10 border border-[#5865F2]/30 rounded-xl text-center">
+                            <p className="text-xs text-[#5865F2] font-bold tracking-widest uppercase">
                                 Click map to place {selectedTool.replace('icon://', '')}
                             </p>
                         </div>
@@ -299,12 +298,12 @@ export default function InteractiveMap() {
                 </div>
 
                 {/* Custom Icons Palette */}
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
-                    <div className="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Asset Markers</h3>
+                <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
+                    <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
+                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Asset Markers</h3>
                         <button
                             onClick={() => setShowIconPalette(!showIconPalette)}
-                            className="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded transition-colors font-bold"
+                            className="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[10px] px-2 py-1 rounded-md transition-colors font-bold uppercase tracking-widest"
                         >
                             {showIconPalette ? 'Hide' : 'Show All'}
                         </button>
@@ -312,7 +311,7 @@ export default function InteractiveMap() {
 
                     <div className={`grid grid-cols-4 gap-2 ${showIconPalette ? 'max-h-[300px]' : 'max-h-[100px]'} overflow-y-auto custom-scrollbar pr-1`}>
                         {availableIcons.length === 0 ? (
-                            <div className="col-span-4 text-xs text-gray-500 italic text-center py-2">Loading assets...</div>
+                            <div className="col-span-4 text-xs text-gray-500 font-mono text-center py-2">Loading assets...</div>
                         ) : (
                             availableIcons.map(icon => {
                                 const toolId = `icon://${icon}`;
@@ -322,8 +321,8 @@ export default function InteractiveMap() {
                                         key={icon}
                                         onClick={() => setSelectedTool(isActive ? null : toolId)}
                                         title={icon}
-                                        className={`relative aspect-square rounded-lg border flex items-center justify-center p-1 transition-all
-                                            ${isActive ? 'bg-amber-500/20 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'bg-gray-950 border-gray-800 hover:border-gray-500'}`}
+                                        className={`relative aspect-square rounded-xl border flex items-center justify-center p-1.5 transition-all
+                                            ${isActive ? 'bg-[#5865F2]/20 border-[#5865F2] shadow-[0_0_15px_rgba(88,101,242,0.3)]' : 'bg-white/5 border-white/10 hover:border-white/30'}`}
                                     >
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={`/images/icons/${icon}`} alt="icon" className="w-full h-full object-contain filter drop-shadow-md" />
@@ -335,32 +334,32 @@ export default function InteractiveMap() {
                 </div>
 
                 {/* Active Presence */}
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center justify-between">
                         Connected Operatives
-                        <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">{activeUsers.length}</span>
+                        <span className="bg-[#5865F2]/20 text-[#5865F2] px-2 py-0.5 rounded-md border border-[#5865F2]/30 text-[10px]">{activeUsers.length}</span>
                     </h3>
                     <ul className="space-y-2">
                         {activeUsers.map(user => (
-                            <li key={user.userId} className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/50 p-2 rounded-lg border border-gray-700/50">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></span>
-                                <span className="font-semibold">{user.name}</span>
-                                <span className="text-[10px] text-emerald-500/70 ml-auto uppercase tracking-wide">Viewing Map</span>
+                            <li key={user.userId} className="flex items-center gap-3 text-sm text-gray-200 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#5865F2] shadow-[0_0_8px_rgba(88,101,242,0.8)] animate-pulse"></span>
+                                <span className="font-bold">{user.name}</span>
+                                <span className="text-[10px] text-gray-400 font-mono ml-auto tracking-widest">Active</span>
                             </li>
                         ))}
-                        {activeUsers.length === 0 && <li className="text-gray-500 text-xs italic text-center py-2">Solo mission</li>}
+                        {activeUsers.length === 0 && <li className="text-gray-500 font-mono text-xs text-center py-2">Solo mission</li>}
                     </ul>
                 </div>
             </div>
 
             {/* Map Container */}
-            <div className="col-span-1 lg:col-span-3 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl relative bg-[#0f172a] h-[500px] lg:h-full">
+            <div className="col-span-1 lg:col-span-3 rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.3)] relative bg-[#0a0f18] h-[500px] lg:h-full">
                 <MapContainer
                     center={[height / 2, width / 2]}
                     zoom={1}
                     minZoom={0}
                     maxZoom={4}
-                    style={{ height: '100%', width: '100%', backgroundColor: '#0f172a' }}
+                    style={{ height: '100%', width: '100%', backgroundColor: '#0a0f18' }}
                     crs={typeof window !== 'undefined' ? require('leaflet').CRS.Simple : undefined}
                     className={selectedTool === 'draw' ? 'cursor-crosshair' : ''}
                 >
