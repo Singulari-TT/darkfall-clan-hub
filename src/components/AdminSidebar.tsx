@@ -27,6 +27,7 @@ export default function AdminSidebar() {
     }
 
     const adminLinks = [
+        { label: "Item Scanner", href: "/admin/scanner", icon: "📸" },
         { label: "Audit Trail", href: "/admin/audit", icon: "⚙️" },
         { label: "Donations", href: "/donations", icon: "📜" },
     ];
