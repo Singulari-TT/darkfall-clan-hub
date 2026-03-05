@@ -12,56 +12,56 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { imageBase64 } = await req.json();
+        const { imageBase64, extractedName: clientExtractedName } = await req.json();
 
         if (!imageBase64) {
             return NextResponse.json({ error: "No image provided." }, { status: 400 });
         }
 
-        // 1. Pre-process the image for OCR
-        const base64DataRaw = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-        const imageBufferRaw = Buffer.from(base64DataRaw, 'base64');
+        let extractedName = clientExtractedName;
 
-        const jimpImage = await Jimp.read(imageBufferRaw);
+        // Fallback to Server-Side OCR if the client didn't provide a name
+        if (!extractedName) {
+            // 1. Pre-process the image for OCR
+            const base64DataRaw = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+            const imageBufferRaw = Buffer.from(base64DataRaw, 'base64');
 
-        // Darkfall text is light on dark. Convert to black on white for OCR.
-        // We also want to ONLY read the top 35 pixels where the Title lives.
-        // Reading the entire description box takes exponential time and introduces errors.
-        jimpImage
-            .crop({ x: 0, y: 0, w: jimpImage.bitmap.width, h: Math.min(jimpImage.bitmap.height, 40) }) // Grab just the top title slice
-            .greyscale()
-            .contrast(0.5)
-            .invert();
+            const jimpImage = await Jimp.read(imageBufferRaw);
 
-        const processedBase64 = await jimpImage.getBase64('image/png');
+            // Darkfall text is light on dark. Convert to black on white for OCR.
+            // We also want to ONLY read the top 35 pixels where the Title lives.
+            jimpImage
+                .crop({ x: 0, y: 0, w: jimpImage.bitmap.width, h: Math.min(jimpImage.bitmap.height, 40) })
+                .greyscale()
+                .contrast(0.5)
+                .invert();
 
-        // 2. Run OCR on the processed image
-        // Use /tmp for cache to prevent Vercel Serverless read-only filesystem crash
-        const worker = await createWorker('eng', 1, {
-            cachePath: '/tmp'
-        });
+            const processedBase64 = await jimpImage.getBase64('image/png');
 
-        // Add a 10 second timeout promise to prevent Vercel Serverless Function hanging
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("Neural OCR engine timed out. Make sure you cropped the image tightly around the text.")), 10000);
-        });
+            // 2. Run OCR on the processed image
+            const worker = await createWorker('eng', 1, {
+                cachePath: '/tmp'
+            });
 
-        // Race tesseract against our 10 second timeout
-        const ret = await Promise.race([
-            worker.recognize(processedBase64),
-            timeoutPromise
-        ]) as any;
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error("Neural OCR engine timed out. Make sure you cropped the image tightly around the text.")), 10000);
+            });
 
-        const text = ret.data.text;
-        await worker.terminate();
+            const ret = await Promise.race([
+                worker.recognize(processedBase64),
+                timeoutPromise
+            ]) as any;
 
-        // The name is typically the very first line of the tooltip
-        const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
-        if (lines.length === 0) {
-            return NextResponse.json({ error: "Could not read any text from the provided image." }, { status: 400 });
+            const text = ret.data.text;
+            await worker.terminate();
+
+            const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+            if (lines.length === 0) {
+                return NextResponse.json({ error: "Could not read any text from the provided image." }, { status: 400 });
+            }
+
+            extractedName = lines[0]; // e.g., "Villa Deed"
         }
-
-        const extractedName = lines[0]; // e.g., "Villa Deed"
 
         // 2. Check Database for duplicate
         const { data: existingItem, error: findError } = await supabase
