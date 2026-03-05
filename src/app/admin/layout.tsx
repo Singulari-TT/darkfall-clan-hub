@@ -14,14 +14,11 @@ export default async function AdminLayout({
         redirect("/login");
     }
 
-    // Verify Admin role
-    const { data: user } = await supabase
-        .from("Users")
-        .select("role")
-        .eq("discord_id", session.user.id)
-        .single();
+    // Verify Admin role using the NextAuth session which securely stores the DB role
+    // @ts-ignore - session.user is extended with role
+    const userRole = session.user.role;
 
-    if (user?.role !== "Admin") {
+    if (userRole !== "Admin") {
         redirect("/");
     }
 
