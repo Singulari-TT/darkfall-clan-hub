@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { createWorker } from 'tesseract.js';
 
 export default function ScannerPage() {
     const { data: session, status } = useSession();
@@ -62,74 +61,25 @@ export default function ScannerPage() {
         };
         reader.readAsDataURL(imageFile);
 
-        setLoading(true);
-        setMessage({ text: "Processing image...", type: 'info' });
-
         try {
             // Convert file to base64
-            const base64 = await new Promise<string>((resolve) => {
+            const base64 = await new Promise<string>((resolve, reject) => {
                 const r = new FileReader();
-                r.onloadend = () => resolve(r.result as string);
+                r.onloadend = () => {
+                    if (r.result) resolve(r.result as string);
+                    else reject(new Error("Failed to read file"));
+                };
                 r.readAsDataURL(imageFile as Blob);
             });
 
-            // Preprocess securely via HTML5 Canvas
-            setMessage({ text: "Enhancing image for Engine...", type: 'info' });
-
-            const processedBase64 = await new Promise<string>((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    if (!ctx) return reject(new Error("Failed to get canvas context"));
-
-                    canvas.width = img.width;
-                    // Crop bottom half of tooltip out, grab top 40px title strip
-                    canvas.height = Math.min(img.height, 40);
-                    ctx.drawImage(img, 0, 0);
-
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-                    for (let i = 0; i < data.length; i += 4) {
-                        const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                        const contrast = (avg - 128) * 1.5 + 128;
-                        const clamped = Math.max(0, Math.min(255, contrast));
-                        const inverted = 255 - clamped;
-                        data[i] = inverted;
-                        data[i + 1] = inverted;
-                        data[i + 2] = inverted;
-                    }
-                    ctx.putImageData(imageData, 0, 0);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-                img.onerror = () => reject(new Error("Failed to load image for processing"));
-                img.src = base64;
-            });
-
-            setMessage({ text: "Running Local Neural OCR...", type: 'info' });
-
-            // Move Tesseract to Client Side instead of Vercel Serverless!
-            const worker = await createWorker('eng');
-            const ret = await worker.recognize(processedBase64);
-            const text = ret.data.text;
-            await worker.terminate();
-
-            const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
-
-            // If Tesseract couldn't find ANY text, don't crash the scanner.
-            // Just present an empty confirmation box so the user can manually type it.
-            const extractedName = lines.length > 0 ? lines[0] : "";
-
-            // Allow user to manually confirm before uploading
-            setScannedName(extractedName);
+            // Immediately ask user for Name before uploading
             setScannedImage(base64);
+            setScannedName("");
             setIsConfirming(true);
-            setMessage({ text: `Neural OCR complete. Please verify the extraction.`, type: 'success' });
+            setMessage({ text: `Image captured. Please enter the item name.`, type: 'info' });
 
         } catch (err: any) {
             setMessage({ text: err.message, type: 'error' });
-        } finally {
-            setLoading(false);
         }
     }, []);
 
@@ -192,10 +142,10 @@ export default function ScannerPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-black font-heading text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-[#c5a059] tracking-widest uppercase mb-1 drop-shadow-md">
-                    OCR Intelligence Scanner
+                    Image Archive Uploader
                 </h1>
                 <p className="text-gray-400 font-serif italic text-sm">
-                    Paste (CTRL+V) an in-game tooltip screenshot directly into this window to extract its text and archive the icon.
+                    Paste (CTRL+V) any in-game screenshot here to manually upload it to the Database.
                 </p>
             </div>
 

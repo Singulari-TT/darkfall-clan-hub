@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createWorker } from 'tesseract.js';
-import { Jimp } from 'jimp';
 import { supabase } from '@/lib/supabase';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -18,50 +16,11 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No image provided." }, { status: 400 });
         }
 
-        let extractedName = clientExtractedName;
-
-        // Fallback to Server-Side OCR if the client didn't provide a name
-        if (!extractedName) {
-            // 1. Pre-process the image for OCR
-            const base64DataRaw = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-            const imageBufferRaw = Buffer.from(base64DataRaw, 'base64');
-
-            const jimpImage = await Jimp.read(imageBufferRaw);
-
-            // Darkfall text is light on dark. Convert to black on white for OCR.
-            // We also want to ONLY read the top 35 pixels where the Title lives.
-            jimpImage
-                .crop({ x: 0, y: 0, w: jimpImage.bitmap.width, h: Math.min(jimpImage.bitmap.height, 40) })
-                .greyscale()
-                .contrast(0.5)
-                .invert();
-
-            const processedBase64 = await jimpImage.getBase64('image/png');
-
-            // 2. Run OCR on the processed image
-            const worker = await createWorker('eng', 1, {
-                cachePath: '/tmp'
-            });
-
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error("Neural OCR engine timed out. Make sure you cropped the image tightly around the text.")), 10000);
-            });
-
-            const ret = await Promise.race([
-                worker.recognize(processedBase64),
-                timeoutPromise
-            ]) as any;
-
-            const text = ret.data.text;
-            await worker.terminate();
-
-            const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
-            if (lines.length === 0) {
-                return NextResponse.json({ error: "Could not read any text from the provided image." }, { status: 400 });
-            }
-
-            extractedName = lines[0]; // e.g., "Villa Deed"
+        if (!clientExtractedName) {
+            return NextResponse.json({ error: "Item name is required." }, { status: 400 });
         }
+
+        let extractedName = clientExtractedName.trim();
 
         // 2. Check Database for duplicate
         const { data: existingItem, error: findError } = await supabase
