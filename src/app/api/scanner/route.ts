@@ -18,7 +18,10 @@ export async function POST(req: Request) {
         }
 
         // 1. Run OCR on the image to find the item name
-        const worker = await createWorker('eng');
+        // Use /tmp for cache to prevent Vercel Serverless read-only filesystem crash
+        const worker = await createWorker('eng', 1, {
+            cachePath: '/tmp'
+        });
 
         // Add a 10 second timeout promise to prevent Vercel Serverless Function hanging
         const timeoutPromise = new Promise((_, reject) => {

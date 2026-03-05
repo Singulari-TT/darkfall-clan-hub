@@ -8,7 +8,23 @@ export default function ScannerPage() {
     const [preview, setPreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
-    const [recentScans, setRecentScans] = useState<{ name: string, url: string }[]>([]);
+    const [recentScans, setRecentScans] = useState<{ name: string, icon_url: string }[]>([]);
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            if (!session?.user?.id) return;
+            try {
+                const res = await fetch('/api/scanner/history');
+                if (res.ok) {
+                    const data = await res.json();
+                    setRecentScans(data.items || []);
+                }
+            } catch (e) {
+                console.error("Failed to load history");
+            }
+        };
+        fetchHistory();
+    }, [session?.user?.id]);
 
     const handlePaste = useCallback(async (e: ClipboardEvent) => {
         const items = e.clipboardData?.items;
@@ -54,14 +70,22 @@ export default function ScannerPage() {
                 body: JSON.stringify({ imageBase64: base64 })
             });
 
-            const data = await res.json();
+            // Handle Vercel 504 Gateway Timeouts gracefully which return HTML instead of JSON
+            const contentType = res.headers.get("content-type");
+            let data: any = {};
+
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                data = await res.json();
+            } else {
+                throw new Error(`Server returned status ${res.status}: Scanning timed out or failed.`);
+            }
 
             if (!res.ok) {
                 throw new Error(data.error || "Failed to scan image");
             }
 
             setMessage({ text: data.message, type: 'success' });
-            setRecentScans(prev => [data.item, ...prev].slice(0, 5));
+            setRecentScans(prev => [{ name: data.item.name, icon_url: data.item.iconUrl }, ...prev].slice(0, 5));
 
         } catch (err: any) {
             setMessage({ text: err.message, type: 'error' });
@@ -150,11 +174,18 @@ export default function ScannerPage() {
                             </h3>
                             <div className="space-y-3">
                                 {recentScans.map((scan, i) => (
-                                    <div key={i} className="flex items-center gap-3 bg-black/40 p-2 rounded border border-red-900/20">
-                                        <div className="w-10 h-10 bg-[#2a252b] rounded flex items-center justify-center overflow-hidden flex-shrink-0">
-                                            <img src={scan.url} alt={scan.name} className="max-w-full max-h-full object-contain" />
+                                    <div key={i} className="flex items-center gap-3 bg-black/40 p-2 rounded border border-emerald-900/30">
+                                        <div className="w-10 h-10 bg-[#2a252b] rounded flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                                            <div className="absolute inset-0 bg-emerald-500/10 z-0"></div>
+                                            <img src={scan.icon_url} alt={scan.name} className="max-w-full max-h-full object-contain relative z-10" />
                                         </div>
-                                        <span className="font-bold text-sm text-gray-200">{scan.name}</span>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-sm text-gray-200">{scan.name}</span>
+                                            <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-bold flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                                Verified
+                                            </span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
