@@ -4,11 +4,13 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchClanGoals, ClanGoal, getFeaturedProject, setFeaturedProject } from "./goals/actions";
+import { getOnlineCount } from "./roster/actions";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const [greeting, setGreeting] = useState("Welcome");
   const [goalsStats, setGoalsStats] = useState({ total: 0, completed: 0 });
+  const [onlineCount, setOnlineCount] = useState(0);
   const [activeGoals, setActiveGoals] = useState<ClanGoal[]>([]);
   const [featuredProject, setFeaturedProjectState] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -24,9 +26,10 @@ export default function Home() {
     // Fetch goals for the progress bar
     const loadDashboardData = async () => {
       try {
-        const [data, projectData] = await Promise.all([
+        const [data, projectData, onlineData] = await Promise.all([
           fetchClanGoals(),
-          getFeaturedProject()
+          getFeaturedProject(),
+          getOnlineCount()
         ]);
 
         const featured = projectData?.featuredProject || null;
@@ -40,6 +43,7 @@ export default function Home() {
 
         const completed = relevantGoals.filter((g: ClanGoal) => g.status === 'Completed').length;
         setGoalsStats({ total: relevantGoals.length, completed });
+        setOnlineCount(onlineData);
       } catch (e) {
         console.error("Failed to fetch dashboard stats");
       }
@@ -80,16 +84,29 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Quick Stat */}
-          <Link href="/goals" className="bg-[#1a151b]/80 border border-red-900/30 rounded-xl p-4 flex items-center gap-4 backdrop-blur-sm shadow-[0_4px_15px_rgba(0,0,0,0.5)] hover:border-red-500/50 transition-colors group cursor-pointer">
-            <div className="w-10 h-10 rounded-lg bg-emerald-900/30 flex items-center justify-center border border-emerald-900/50 group-hover:bg-emerald-800/50 transition-colors">
-              <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-bold font-heading tracking-widest uppercase group-hover:text-gray-300 transition-colors">Objectives Met</p>
-              <p className="text-xl font-bold text-gray-100">{goalsStats.completed} <span className="text-sm text-gray-500 font-normal">/ {goalsStats.total}</span></p>
-            </div>
-          </Link>
+          {/* Quick Stats */}
+          <div className="flex gap-4">
+            <Link href="/goals" className="bg-[#1a151b]/80 border border-red-900/30 rounded-xl p-4 flex items-center gap-4 backdrop-blur-sm shadow-[0_4px_15px_rgba(0,0,0,0.5)] hover:border-red-500/50 transition-colors group cursor-pointer">
+              <div className="w-10 h-10 rounded-lg bg-emerald-900/30 flex items-center justify-center border border-emerald-900/50 group-hover:bg-emerald-800/50 transition-colors">
+                <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold font-heading tracking-widest uppercase group-hover:text-gray-300 transition-colors">Objectives Met</p>
+                <p className="text-xl font-bold text-gray-100">{goalsStats.completed} <span className="text-sm text-gray-500 font-normal">/ {goalsStats.total}</span></p>
+              </div>
+            </Link>
+
+            <Link href="/directory" className="bg-[#1a151b]/80 border border-red-900/30 rounded-xl p-4 flex items-center gap-4 backdrop-blur-sm shadow-[0_4px_15px_rgba(0,0,0,0.5)] hover:border-blue-500/50 transition-colors group cursor-pointer">
+              <div className="w-10 h-10 rounded-lg bg-blue-900/30 flex items-center justify-center border border-blue-900/50 relative">
+                <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1a151b] group-hover:border-blue-500/50 animate-[pulse_2s_infinite]"></div>
+                <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold font-heading tracking-widest uppercase group-hover:text-gray-300 transition-colors">Krew Online</p>
+                <p className="text-xl font-bold text-gray-100">{onlineCount} <span className="text-sm text-gray-500 font-normal">Active</span></p>
+              </div>
+            </Link>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-5">

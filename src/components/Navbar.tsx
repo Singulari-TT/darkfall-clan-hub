@@ -27,6 +27,8 @@ export default function Navbar() {
         { label: "Roster", href: "/directory", icon: "🛡️" },
         { label: "War Room", href: "/map", icon: "🗺️" },
         { label: "Bank Market", href: "/bank-market", icon: "⚖️" },
+        { label: "Loot Splitter", href: "/loot-splitter", icon: "🪓" },
+        { label: "Media", href: "/media", icon: "📺" },
     ];
 
     return (
@@ -50,31 +52,7 @@ export default function Navbar() {
                     {/* Navigation Links */}
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-1">
-                            {/* Admin Context (Requires Check) */}
-                            {userRole === 'Admin' && (
-                                <>
-                                    <Link
-                                        href="/admin/audit"
-                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${pathname?.startsWith('/admin')
-                                            ? "bg-red-950/60 text-amber-500 border border-red-900/50 shadow-inner"
-                                            : "text-gray-400 hover:text-amber-400 hover:bg-white/5"
-                                            }`}
-                                    >
-                                        <span>⚙️</span>
-                                        Admin
-                                    </Link>
-                                    <Link
-                                        href="/donations"
-                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${pathname === '/donations'
-                                            ? "bg-red-950/60 text-[#c5a059] border border-[#c5a059]/50 shadow-[0_0_10px_rgba(197,160,89,0.2)]"
-                                            : "text-gray-400 hover:text-[#c5a059] hover:bg-white/5"
-                                            }`}
-                                    >
-                                        <span>📜</span>
-                                        Donations
-                                    </Link>
-                                </>
-                            )}
+                            {/* Admin links moved to AdminSidebar */}
                             {navItems.map((item) => {
                                 const isActive = pathname === item.href;
                                 return (

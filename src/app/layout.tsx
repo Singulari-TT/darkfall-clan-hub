@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import ActivityTracker from "@/components/ActivityTracker";
 import Navbar from "@/components/Navbar";
+import AdminSidebar from "@/components/AdminSidebar";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <Providers>
           <ActivityTracker />
           <Navbar />
+          <AdminSidebar />
           {children}
         </Providers>
       </body>

@@ -4,6 +4,12 @@ import { supabase } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 
+// Helper to determine if the session user ID is a local UUID or a fallback Discord ID
+function getIdField(id: string) {
+    const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+    return isUUID ? "id" : "discord_id";
+}
+
 export interface LedgerEntry {
     id: string;
     item_name: string;
@@ -23,7 +29,7 @@ export async function fetchLedgerEntries() {
     const { data: userRecord } = await supabase
         .from("Users")
         .select("role")
-        .eq("discord_id", session.user.id)
+        .eq(getIdField(session.user.id), session.user.id)
         .single();
 
     if (!userRecord || !['Admin', 'Leader', 'Officer'].includes(userRecord.role)) {
@@ -60,7 +66,7 @@ export async function addLedgerEntry(itemName: string, quantity: number, source:
     const { data: userRecord } = await supabase
         .from("Users")
         .select("id, role")
-        .eq("discord_id", session.user.id)
+        .eq(getIdField(session.user.id), session.user.id)
         .single();
 
     if (!userRecord || !['Admin', 'Leader', 'Officer'].includes(userRecord.role)) {

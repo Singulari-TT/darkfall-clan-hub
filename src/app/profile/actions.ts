@@ -4,6 +4,12 @@ import { supabase } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 
+// Helper to determine if the session user ID is a local UUID or a fallback Discord ID
+function getIdField(id: string) {
+    const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+    return isUUID ? "id" : "discord_id";
+}
+
 export interface CharacterItem {
     id: string;
     name: string;
@@ -41,7 +47,7 @@ export async function fetchMyProfile() {
                 admin_only
             )
         `)
-        .eq("id", session.user.id)
+        .eq(getIdField(session.user.id), session.user.id)
         .single();
 
     if (error) {
@@ -61,7 +67,7 @@ export async function updateDisplayName(newName: string) {
     const { error } = await supabase
         .from("Users")
         .update({ display_name: newName })
-        .eq("id", session.user.id);
+        .eq(getIdField(session.user.id), session.user.id);
 
     if (error) {
         console.error("Error updating display name:", error);
@@ -79,7 +85,7 @@ export async function updateBio(newBio: string) {
     const { error } = await supabase
         .from("Users")
         .update({ bio: newBio })
-        .eq("id", session.user.id);
+        .eq(getIdField(session.user.id), session.user.id);
 
     if (error) {
         console.error("Error updating bio:", error);
@@ -98,7 +104,7 @@ export async function addCharacter(name: string, is_visible: boolean, admin_only
     const { data: userRecord } = await supabase
         .from("Users")
         .select("id")
-        .eq("id", session.user.id)
+        .eq(getIdField(session.user.id), session.user.id)
         .single();
 
     if (!userRecord) throw new Error("Could not find database user.");
@@ -127,7 +133,7 @@ export async function deleteCharacter(charId: string) {
     const { data: userRecord } = await supabase
         .from("Users")
         .select("id")
-        .eq("id", session.user.id)
+        .eq(getIdField(session.user.id), session.user.id)
         .single();
 
     if (!userRecord) throw new Error("Unauthorized");
