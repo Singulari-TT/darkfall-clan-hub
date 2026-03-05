@@ -131,58 +131,54 @@ async function parseAndUpdateOnlineStatus() {
             if (clanIdMatch) clanID = clanIdMatch[1];
         }
 
-        // Step 4: Accessing News Reel (Scrape Data)
-        console.log("Step 4: Requesting Live XML News Reel...");
-        const newsReelUrl = `${baseUrl}?SessionKey=${sessionKey}&WebGateRequest=54&RequestOwner=${newReqOwner}`;
-        const resp7 = await fetch(newsReelUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({ ClanID: clanID })
-        });
-        const text7 = await resp7.text();
-        const newsDataMatch = text7.match(/<Data>(.*?)<\/Data>/);
+        // Step 4: Accessing Clan Roster (Scrape True Online Status)
+        console.log("Step 4: Requesting Live XML Clan Roster...");
 
-        if (!newsDataMatch) {
-            console.error("Failed to retrieve XML Data block from WebGate.");
-            process.exit(1);
-        }
-
-        const compressedNews = newsDataMatch[1].split(',');
-        const xmlContent = LZW.decompress(compressedNews);
-        console.log("Successfully intercepted and decompressed XML Stream.");
-
-        // Match all <Event> blocks
-        const eventRegex = /<Event>[\s\S]*?<TimeData>(.*?)<\/TimeData>[\s\S]*?<Text>(.*?)<\/Text>[\s\S]*?<\/Event>/g;
-        let match;
         let membersOnlineCount = 0;
-        const playerStatus = {};
+        let startRow = 1;
+        let totalRows = 9999;
+        let pagesScraped = 0;
 
-        while ((match = eventRegex.exec(xmlContent)) !== null) {
-            const timeData = match[1];
-            const textMatch = match[2];
+        while (startRow <= totalRows) {
+            const rosterUrl = `${baseUrl}?SessionKey=${sessionKey}&WebGateRequest=47&RequestOwner=${newReqOwner}&ogb=true`;
+            const rosterResp = await fetch(rosterUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ ClanID: clanID, Sort: "1", Direction: "1", GridCurrentStartRow: startRow.toString() })
+            });
+            const rosterText = await rosterResp.text();
+            const rosterDataMatch = rosterText.match(/<Data>(.*?)<\/Data>/);
 
-            const onlineMatch = textMatch.match(/^(.*?)\s+is now (online|offline)\.$/);
-
-            if (onlineMatch) {
-                let playerName = onlineMatch[1].trim();
-                const isOnline = onlineMatch[2] === 'online';
-
-                const ranks = ['Recruit ', 'Private ', 'Corporal ', 'Sergeant ', 'Lieutenant ', 'Captain ', 'Major ', 'Commander ', 'General ', 'SupremeGeneral '];
-                for (const rank of ranks) {
-                    if (playerName.startsWith(rank)) {
-                        playerName = playerName.substring(rank.length);
-                        break;
-                    }
-                }
-
-                if (playerStatus[playerName] === undefined) {
-                    playerStatus[playerName] = isOnline;
-                    if (isOnline) membersOnlineCount++;
-                }
+            if (!rosterDataMatch) {
+                console.error("Failed to retrieve XML Data block from WebGate Roster.");
+                break;
             }
+
+            const compressedRoster = rosterDataMatch[1].split(',');
+            const xmlContent = LZW.decompress(compressedRoster);
+
+            // Extract pagination info
+            const startRowMatch = xmlContent.match(/<GridCurrentStartRow>(.*?)<\/GridCurrentStartRow>/);
+            const pageRowsMatch = xmlContent.match(/<GridCurrentPageRows>(.*?)<\/GridCurrentPageRows>/);
+            const totalRowsMatch = xmlContent.match(/<GridTotalRows>(.*?)<\/GridTotalRows>/);
+
+            if (totalRowsMatch) totalRows = parseInt(totalRowsMatch[1], 10);
+            if (pageRowsMatch) {
+                const pageRows = parseInt(pageRowsMatch[1], 10);
+                startRow += pageRows;
+            } else {
+                break; // safeguard
+            }
+
+            // Count truly "Online" active states on this page
+            const onlineMatches = xmlContent.match(/<State>Online<\/State>/g);
+            if (onlineMatches) membersOnlineCount += onlineMatches.length;
+
+            pagesScraped++;
         }
 
-        console.log(`\nTotal unique members currently online: ${membersOnlineCount}`);
+        console.log(`Successfully scraped ${pagesScraped} roster pages.`);
+        console.log(`\nTotal truly active members currently online: ${membersOnlineCount}`);
         console.log("Pushing decoupled count to Supabase SystemConfig...");
 
         try {

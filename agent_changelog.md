@@ -11,4 +11,5 @@
   - Decoupled the "Krew Online" count from the Supabase `Characters` table. It now relies on a raw integer in the `SystemConfig` table.
   - Adapted the `parse_online.js` scraper to run via GitHub Actions.
   - **Auth Note:** Discovered the Darkfall WebGate requires a multi-step SHA-1 handshake and `SessionKey` extraction. Moved this logic into the GitHub Actions cron script so it can run fully autonomously without user intervention.
-- **Pending:** Merging the full SHA-1 auth flow into `parse_online_cron.js` and finishing the OCR item parsing for the Loot Splitter.
+  - **Bug Fix:** The initial online scraper relied on the *News Reel* events, which only caught players who logged in very recently. Rewrote `parse_online_cron.js` to paginate through the actual Clan Roster (`WebGateRequest=47`) and count the exact number of active `<State>Online</State>` tags for 100% accuracy.
+- **Pending:** Finishing the OCR item parsing for the Loot Splitter.

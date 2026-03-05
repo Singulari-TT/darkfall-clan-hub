@@ -169,8 +169,14 @@ export default function ScannerPage() {
                                     <label className="block text-xs font-bold uppercase tracking-widest text-[#c5a059] mb-2">Confirm Item Name</label>
                                     <input
                                         type="text"
+                                        autoFocus
                                         value={scannedName}
                                         onChange={(e) => setScannedName(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && scannedName.trim()) {
+                                                handleConfirm();
+                                            }
+                                        }}
                                         className="w-full bg-black/50 border border-red-900/50 rounded p-3 text-white focus:outline-none focus:border-red-500 mb-4 font-bold tracking-wider"
                                     />
                                     <div className="flex gap-3">
