@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createWorker } from 'tesseract.js';
+import { Jimp } from 'jimp';
 import { supabase } from '@/lib/supabase';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -17,7 +18,24 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No image provided." }, { status: 400 });
         }
 
-        // 1. Run OCR on the image to find the item name
+        // 1. Pre-process the image for OCR
+        const base64DataRaw = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+        const imageBufferRaw = Buffer.from(base64DataRaw, 'base64');
+
+        const jimpImage = await Jimp.read(imageBufferRaw);
+
+        // Darkfall text is light on dark. Convert to black on white for OCR.
+        // We also want to ONLY read the top 35 pixels where the Title lives.
+        // Reading the entire description box takes exponential time and introduces errors.
+        jimpImage
+            .crop({ x: 0, y: 0, w: jimpImage.bitmap.width, h: Math.min(jimpImage.bitmap.height, 40) }) // Grab just the top title slice
+            .greyscale()
+            .contrast(0.5)
+            .invert();
+
+        const processedBase64 = await jimpImage.getBase64('image/png');
+
+        // 2. Run OCR on the processed image
         // Use /tmp for cache to prevent Vercel Serverless read-only filesystem crash
         const worker = await createWorker('eng', 1, {
             cachePath: '/tmp'
@@ -30,7 +48,7 @@ export async function POST(req: Request) {
 
         // Race tesseract against our 10 second timeout
         const ret = await Promise.race([
-            worker.recognize(imageBase64),
+            worker.recognize(processedBase64),
             timeoutPromise
         ]) as any;
 
