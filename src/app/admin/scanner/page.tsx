@@ -44,7 +44,10 @@ export default function ScannerPage() {
             }
         }
 
-        if (!imageFile) return;
+        if (!imageFile) {
+            // Ignore text pastes (like the user accidentally copying in-game chat)
+            return;
+        }
 
         // Prevent users from pasting massive full-screen images that crash the OCR
         if (imageFile.size > 2 * 1024 * 1024) { // 2MB limit
