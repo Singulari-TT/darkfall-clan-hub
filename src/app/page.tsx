@@ -197,6 +197,18 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* Card: Tournaments */}
+          <Link href="/tournaments" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-amber-500/30 hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500/20 group-hover:scale-110 transition-all shadow-inner">
+              <span className="text-2xl drop-shadow-md">⚔️</span>
+            </div>
+            <div className="flex flex-col justify-center h-full z-10">
+              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Tournaments</h2>
+              <p className="text-gray-400 text-sm leading-relaxed">Create and compete in clan-run intra-operative PvP tournaments and events.</p>
+            </div>
+          </Link>
+
           {/* Card: Goals / Directives (Special Interactive Card) */}
           <div className="relative md:col-span-2 group mt-4">
             <Link href="/goals" className="block relative overflow-hidden bg-[#5865F2]/5 backdrop-blur-xl border border-[#5865F2]/20 rounded-2xl p-8 hover:bg-[#5865F2]/10 hover:border-[#5865F2]/50 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-[0_0_30px_rgba(88,101,242,0.2)] duration-300">

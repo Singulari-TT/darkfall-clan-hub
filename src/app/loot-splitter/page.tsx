@@ -1,10 +1,14 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Player {
     id: string;
     name: string;
+}
+
+interface PlayerRoll {
+    playerId: number;
+    roll: number;
 }
 
 interface Item {
@@ -12,16 +16,111 @@ interface Item {
     name: string;
     quantity: number;
     valuePerUnit: number;
+    rolls?: PlayerRoll[]; // New property for storing the dice rolls
 }
 
 export default function LootSplitter() {
     const [partySize, setPartySize] = useState<number>(1);
     const [items, setItems] = useState<Item[]>([{ id: '1', name: '', quantity: 1, valuePerUnit: 0 }]);
     const [rawGold, setRawGold] = useState<number>(0);
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanMessage, setScanMessage] = useState<string | null>(null);
 
     const addItem = () => setItems([...items, { id: Math.random().toString(), name: '', quantity: 1, valuePerUnit: 0 }]);
     const removeItem = (id: string) => setItems(items.filter(i => i.id !== id));
     const updateItem = (id: string, field: keyof Item, value: any) => setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
+
+    const handleRollDice = (itemId: string) => {
+        const newRolls: PlayerRoll[] = [];
+        for (let i = 1; i <= partySize; i++) {
+            newRolls.push({ playerId: i, roll: Math.floor(Math.random() * 100) + 1 });
+        }
+        updateItem(itemId, 'rolls', newRolls);
+    };
+
+    const handlePaste = async (e: React.ClipboardEvent) => {
+        const itemsList = e.clipboardData?.items;
+        if (!itemsList) return;
+
+        let imageFile = null;
+        for (let i = 0; i < itemsList.length; i++) {
+            if (itemsList[i].type.indexOf('image') !== -1) {
+                imageFile = itemsList[i].getAsFile();
+                break;
+            }
+        }
+
+        if (!imageFile) return;
+
+        setIsScanning(true);
+        setScanMessage("A.I. Neural Vision analyzing item grid...");
+
+        try {
+            const base64 = await new Promise<string>((resolve, reject) => {
+                const r = new FileReader();
+                r.onloadend = () => {
+                    if (r.result) resolve(r.result as string);
+                    else reject(new Error("Failed to read file"));
+                };
+                r.readAsDataURL(imageFile as Blob);
+            });
+
+            const res = await fetch('/api/loot-vision', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageBase64: base64 })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to analyze image");
+            }
+
+            // Map API response to UI state
+            const detectedItems: Item[] = data.items.map((apiItem: any) => ({
+                id: Math.random().toString(),
+                name: apiItem.name || "Unknown Item",
+                quantity: apiItem.quantity || 1,
+                valuePerUnit: apiItem.valuePerUnit || 0
+            }));
+
+            // Separate raw gold from generic items if the AI found it
+            const goldItemIndex = detectedItems.findIndex(i => i.name.toLowerCase().includes("gold"));
+            if (goldItemIndex !== -1) {
+                setRawGold(prev => prev + detectedItems[goldItemIndex].quantity);
+                detectedItems.splice(goldItemIndex, 1);
+            }
+
+            setItems(prev => [...prev, ...detectedItems]);
+            setScanMessage(null);
+
+        } catch (err: any) {
+            console.error("Vision API Error:", err);
+            setScanMessage(`Error: ${err.message}`);
+            // Auto clear error message
+            setTimeout(() => setScanMessage(null), 5000);
+        } finally {
+            setIsScanning(false);
+        }
+    };
+
+    useEffect(() => {
+        const handleGlobalPaste = async (e: ClipboardEvent) => {
+            // Prevent default paste if we're focused on an input
+            if (e.target instanceof HTMLInputElement) return;
+            if (!e.clipboardData) return;
+
+            const fakeReactEvent = {
+                clipboardData: e.clipboardData,
+            } as unknown as React.ClipboardEvent;
+
+            handlePaste(fakeReactEvent);
+        };
+
+        window.addEventListener('paste', handleGlobalPaste);
+        return () => window.removeEventListener('paste', handleGlobalPaste);
+    }, []);
 
     const totalItemValue = items.reduce((acc, item) => acc + (item.quantity * item.valuePerUnit), 0);
     const totalPool = totalItemValue + rawGold;
@@ -59,13 +158,50 @@ export default function LootSplitter() {
                             </div>
                         </div>
 
-                        {/* Image OCR Dropzone Placeholder */}
-                        <div className="bg-white/5 border border-white/10 border-dashed rounded-2xl p-8 backdrop-blur-xl text-center group hover:bg-white/10 hover:border-[#5865F2]/50 transition-all cursor-pointer">
-                            <div className="w-16 h-16 mx-auto bg-[#5865F2]/10 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-[#5865F2]/20 transition-all">
-                                <span className="text-3xl">📸</span>
-                            </div>
-                            <h3 className="text-white font-bold text-lg mb-2">Paste Loot Screenshot (OCR Beta)</h3>
-                            <p className="text-gray-400 text-sm">Ctrl+V your inventory image here to automatically parse items and values. Building neural link...</p>
+                        {/* Image OCR Dropzone Component */}
+                        <div
+                            className={`bg-white/5 border ${isScanning ? 'border-[#5865F2] shadow-[0_0_20px_rgba(88,101,242,0.3)]' : 'border-white/10'} border-dashed rounded-2xl p-8 backdrop-blur-xl text-center group hover:bg-white/10 hover:border-[#5865F2]/50 transition-all focus-within:border-[#5865F2] outline-none relative cursor-pointer`}
+                            onPaste={handlePaste}
+                            tabIndex={0}
+                        >
+                            {isScanning ? (
+                                <div className="flex flex-col items-center justify-center space-y-4 py-4">
+                                    <div className="w-12 h-12 rounded-full border-4 border-[#5865F2] border-t-transparent animate-spin mx-auto"></div>
+                                    <p className="text-[#5865F2] font-bold tracking-widest uppercase text-xs animate-pulse">{scanMessage}</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="w-16 h-16 mx-auto bg-[#5865F2]/10 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-[#5865F2]/20 transition-all">
+                                        <span className="text-3xl">📸</span>
+                                    </div>
+                                    <h3 className="text-white font-bold text-lg mb-2">Paste Loot Screenshot (Click and CTRL+V)</h3>
+                                    <p className="text-gray-400 text-sm">Let our A.I Neural Engine instantly identify items and quantities.</p>
+                                    {scanMessage && (
+                                        <p className="mt-4 text-red-400 bg-red-950/50 inline-block px-4 py-2 rounded-lg text-xs font-bold font-mono tracking-tight shadow-md">
+                                            {scanMessage}
+                                        </p>
+                                    )}
+
+                                    {/* Invisible actual input for click fallback */}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        onChange={(e) => {
+                                            if (e.target.files && e.target.files[0]) {
+                                                const fakeEvent = {
+                                                    clipboardData: {
+                                                        items: [
+                                                            { type: e.target.files[0].type, getAsFile: () => e.target.files![0] }
+                                                        ]
+                                                    }
+                                                } as unknown as React.ClipboardEvent;
+                                                handlePaste(fakeEvent);
+                                            }
+                                        }}
+                                    />
+                                </>
+                            )}
                         </div>
 
                         {/* Loot Section */}
@@ -135,35 +271,80 @@ export default function LootSplitter() {
                     <div className="lg:col-span-1">
                         <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl p-6 sticky top-24 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
                             <h2 className="text-xl font-bold text-white tracking-tight mb-6 border-b border-white/10 pb-4">
-                                Distribution Summary
+                                Distribution Ledger
                             </h2>
 
-                            <div className="space-y-4 mb-8">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Party Size:</span>
-                                    <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded-md">{partySize}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Total Asset Value:</span>
-                                    <span className="text-amber-500 font-mono">{totalItemValue.toLocaleString()} g</span>
-                                </div>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Raw Gold:</span>
-                                    <span className="text-amber-500 font-mono">{rawGold.toLocaleString()} g</span>
-                                </div>
-                                <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                                    <span className="text-white font-bold uppercase tracking-wider">Gross Yield:</span>
-                                    <span className="text-amber-400 font-bold font-mono text-xl drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">{totalPool.toLocaleString()} g</span>
-                                </div>
-                            </div>
+                            {/* Split Mechanics */}
+                            <div className="space-y-4 mb-6 text-sm">
+                                {items.length === 0 && rawGold === 0 ? (
+                                    <div className="text-gray-500 italic text-center py-8">Awaiting operational assets...</div>
+                                ) : (
+                                    items.map((item) => {
+                                        const splitAmount = partySize > 0 ? Math.floor(item.quantity / partySize) : 0;
+                                        const remainder = partySize > 0 ? item.quantity % partySize : 0;
 
-                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 text-center shadow-inner relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all -mr-10 -mt-10"></div>
-                                <p className="text-xs text-amber-500/80 font-bold uppercase tracking-widest mb-2 relative z-10">Individual Cut</p>
-                                <p className="text-4xl font-black text-amber-400 font-mono drop-shadow-lg relative z-10">
-                                    {splitPerPlayer.toLocaleString()} <span className="text-xl text-amber-600">g</span>
-                                </p>
+                                        // Visual highlight for the highest dice roll winner
+                                        let maxRoll = 0;
+                                        if (item.rolls && item.rolls.length > 0) {
+                                            maxRoll = Math.max(...item.rolls.map(r => r.roll));
+                                        }
+
+                                        return (
+                                            <div key={item.id} className="bg-black/40 border border-white/5 rounded-lg p-3">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-gray-300 font-bold">{item.quantity}x {item.name}</span>
+                                                    <button
+                                                        onClick={() => handleRollDice(item.id)}
+                                                        className="text-xs bg-indigo-500/10 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/20 px-2 py-1 rounded transition-colors flex items-center gap-1"
+                                                    >
+                                                        🎲 Roll
+                                                    </button>
+                                                </div>
+                                                <div className="flex justify-between text-xs text-gray-500 border-t border-white/5 pt-2">
+                                                    <span>Divide: <strong className="text-indigo-400 font-mono text-sm ml-1">{splitAmount}</strong> each</span>
+                                                    {remainder > 0 && <span>Remainder: <strong className="text-orange-400 font-mono text-sm ml-1">{remainder}</strong></span>}
+                                                </div>
+
+                                                {/* Render Dice Results Inline */}
+                                                {item.rolls && item.rolls.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/5">
+                                                        {item.rolls.map(r => (
+                                                            <div key={r.playerId} className={`text-xs px-2 py-1 flex items-center gap-1 font-mono rounded ${r.roll === maxRoll ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold' : 'bg-white/5 text-gray-400 border border-white/10'}`}>
+                                                                <span className="opacity-50">P{r.playerId}:</span> {r.roll}
+                                                                {r.roll === maxRoll && <span className="text-[10px]">⭐</span>}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-400">Total Asset Value:</span>
+                                <span className="text-amber-500 font-mono">{totalItemValue.toLocaleString()} g</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-400">Raw Gold:</span>
+                                <span className="text-amber-500 font-mono">{rawGold.toLocaleString()} g</span>
+                            </div>
+                            {/* Financial Cut Header */}
+                            {totalPool > 0 && (
+                                <>
+                                    <div className="flex justify-between items-center pt-4 border-t border-white/10 mb-4">
+                                        <span className="text-white font-bold uppercase tracking-wider text-sm">Gross Yield:</span>
+                                        <span className="text-amber-400 font-bold font-mono text-xl drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">{totalPool.toLocaleString()} g</span>
+                                    </div>
+                                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 text-center shadow-inner relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all -mr-10 -mt-10"></div>
+                                        <p className="text-xs text-amber-500/80 font-bold uppercase tracking-widest mb-2 relative z-10">Individual Cut (Gold Equiv)</p>
+                                        <p className="text-4xl font-black text-amber-400 font-mono drop-shadow-lg relative z-10">
+                                            {splitPerPlayer.toLocaleString()} <span className="text-xl text-amber-600">g</span>
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

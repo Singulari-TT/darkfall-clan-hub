@@ -29,6 +29,7 @@ export default function Navbar() {
         { label: "Bank Market", href: "/bank-market", icon: "⚖️" },
         { label: "Loot Splitter", href: "/loot-splitter", icon: "🪓" },
         { label: "Media", href: "/media", icon: "📺" },
+        { label: "Tournaments", href: "/tournaments", icon: "⚔️" },
     ];
 
     return (
