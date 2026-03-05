@@ -11,6 +11,11 @@ export default function ScannerPage() {
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
     const [recentScans, setRecentScans] = useState<{ name: string, icon_url: string }[]>([]);
 
+    // Confirmation State
+    const [scannedImage, setScannedImage] = useState<string | null>(null);
+    const [scannedName, setScannedName] = useState<string>("");
+    const [isConfirming, setIsConfirming] = useState(false);
+
     useEffect(() => {
         const fetchHistory = async () => {
             if (!session?.user?.id) return;
@@ -112,13 +117,31 @@ export default function ScannerPage() {
             }
 
             const extractedName = lines[0];
-            setMessage({ text: `Detected "${extractedName}". Uploading to global archive...`, type: 'info' });
 
-            // Post to Server Route just for Duplicate Checking & Supabase Upload
+            // Allow user to manually confirm before uploading
+            setScannedName(extractedName);
+            setScannedImage(base64);
+            setIsConfirming(true);
+            setMessage({ text: `Neural OCR complete. Please verify the extraction.`, type: 'success' });
+
+        } catch (err: any) {
+            setMessage({ text: err.message, type: 'error' });
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const handleConfirm = async () => {
+        if (!scannedImage || !scannedName.trim()) return;
+
+        setLoading(true);
+        setMessage({ text: `Uploading "${scannedName}" to global archive...`, type: 'info' });
+
+        try {
             const res = await fetch('/api/scanner', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageBase64: base64, extractedName })
+                body: JSON.stringify({ imageBase64: scannedImage, extractedName: scannedName.trim() })
             });
 
             const contentType = res.headers.get("content-type");
@@ -136,13 +159,15 @@ export default function ScannerPage() {
 
             setMessage({ text: data.message, type: 'success' });
             setRecentScans(prev => [{ name: data.item.name, icon_url: data.item.iconUrl }, ...prev].slice(0, 5));
-
+            setIsConfirming(false);
+            setScannedImage(null);
+            setScannedName("");
         } catch (err: any) {
             setMessage({ text: err.message, type: 'error' });
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
     useEffect(() => {
         document.addEventListener("paste", handlePaste);
@@ -187,8 +212,41 @@ export default function ScannerPage() {
                             <div className="relative border border-red-900/50 rounded-lg overflow-hidden max-h-[300px] bg-black">
                                 <img src={preview} alt="Pasted clipboard" className="object-contain max-h-[300px] w-auto mx-auto" />
                             </div>
-                            {loading && (
-                                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center rounded-xl">
+                            {isConfirming && (
+                                <div className="w-full p-4 bg-black/40 border border-red-900/40 rounded-lg mt-2">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-[#c5a059] mb-2">Confirm Item Name</label>
+                                    <input
+                                        type="text"
+                                        value={scannedName}
+                                        onChange={(e) => setScannedName(e.target.value)}
+                                        className="w-full bg-black/50 border border-red-900/50 rounded p-3 text-white focus:outline-none focus:border-red-500 mb-4 font-bold tracking-wider"
+                                    />
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={handleConfirm}
+                                            disabled={loading || !scannedName.trim()}
+                                            className="flex-1 bg-green-900/40 hover:bg-green-800/60 text-green-400 border border-green-900/50 uppercase tracking-widest text-xs font-bold py-3 rounded transition-colors disabled:opacity-50"
+                                        >
+                                            {loading ? 'Archiving...' : 'Confirm & Archive'}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setIsConfirming(false);
+                                                setPreview(null);
+                                                setScannedImage(null);
+                                                setMessage(null);
+                                            }}
+                                            disabled={loading}
+                                            className="px-4 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/50 uppercase tracking-widest text-xs font-bold rounded transition-colors disabled:opacity-50"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {loading && !isConfirming && (
+                                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center rounded-xl z-20">
                                     <div className="space-y-4 text-center">
                                         <div className="w-12 h-12 rounded-full border-4 border-[#c5a059] border-t-transparent animate-spin mx-auto"></div>
                                         <p className="text-[#c5a059] font-bold tracking-widest uppercase text-sm animate-pulse">Running Neural OCR...</p>
