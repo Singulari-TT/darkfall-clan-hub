@@ -4,7 +4,7 @@ import { useState } from "react";
 import InteractiveMap from "@/components/InteractiveMap";
 import WarRoomIntro from "@/components/WarRoomIntro";
 import NativeIntelligenceFeed from "@/components/NativeIntelligenceFeed";
-import GitHubWatcherFeed from "@/components/GitHubWatcherFeed";
+import CodeWatcherFeed from "@/components/CodeWatcherFeed";
 
 type WarRoomTab = "map" | "ganks" | "bans" | "heatmap" | "code";
 
@@ -75,7 +75,7 @@ export default function WarRoomPage() {
                         <div className="absolute inset-0 bg-[#0a0f18] flex items-center justify-center p-8">
                             <div className="w-full h-full max-w-[85%] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden">
                                 {activeTab === "code" ? (
-                                    <GitHubWatcherFeed />
+                                    <CodeWatcherFeed />
                                 ) : (
                                     <NativeIntelligenceFeed type={activeTab as 'ganks' | 'bans'} />
                                 )}

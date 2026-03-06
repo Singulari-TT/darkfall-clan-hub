@@ -5,6 +5,8 @@ import Providers from "@/components/Providers";
 import ActivityTracker from "@/components/ActivityTracker";
 import Navbar from "@/components/Navbar";
 import AdminSidebar from "@/components/AdminSidebar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -21,11 +23,15 @@ export const metadata: Metadata = {
   description: "Dreadkrew Tactical & Logistics Interface",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+  // @ts-ignore
+  const isAdmin = session?.user?.role === 'Admin';
+
   return (
     <html lang="en">
       <body
@@ -35,7 +41,9 @@ export default function RootLayout({
           <ActivityTracker />
           <Navbar />
           <AdminSidebar />
-          {children}
+          <div className={isAdmin ? 'pl-14 transition-all duration-300' : ''}>
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

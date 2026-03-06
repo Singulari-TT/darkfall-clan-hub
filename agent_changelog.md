@@ -9,7 +9,9 @@
   - **War Room Scaling**: Reduced the Tactical Map footprint by 30% and added immersive overlays (GRID_ALPHA_V1) for a more professional command feel.
   - **Native Intelligence Feeds**: Replaced blocked iframes for Ganks and Bans with native scraping API routes (`/api/agon/ganks`, `/api/agon/bans`) and a custom `NativeIntelligenceFeed` component.
   - **Harvest Scraper**: Created `scripts/scrape_harvests.js` to parse News Reel milestone events (1st, 10th, 20th...) for imperial resource estimation.
-  - **Navbar Refinement**: Integrated "Empire" into the global navigation and updated system icons to a more tactical "Satellite/Radar" aesthetic (📡, 👤, 🛰️, 🏰).
+  - **Multi-Platform Code Watch**: Expanded the repository watcher to aggregate searches from **GitHub** and **GitLab**. Added platform-specific branding and icons to the "Code Watch" feed.
+  - **Aggregator API**: Implemented `/api/intel/code-watch` to source and normalize development activity across the ecosystem.
+  - **UI Fix (Shift-Layout)**: Resolved the Admin Sidebar overlap bug. Implemented a conditional `pl-14` layout shift in the root `layout.tsx` for Admin users, ensuring the sidebar no longer covers main content.
 - **SQL Requirement**: Run `src/database/empire-schema.sql` to initialize imperial tracking tables.
 - **Pending**: Actual yield numbers for Mines and Quarries from user.
 
