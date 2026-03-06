@@ -74,7 +74,7 @@ async function syncExternalRosters() {
                 clan_name: name,
                 member_count: memberList.length,
                 top_member: topMember?.name || "Unknown",
-                // top_member_activity: topMember?.count || 0, // Column missing in DB
+                top_member_activity: topMember?.count || 0, // Column missing in DB
                 total_activity: data.totalActivity,
                 members: memberList,
                 last_scanned: new Date().toISOString()
