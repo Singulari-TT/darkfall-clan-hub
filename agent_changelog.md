@@ -11,9 +11,12 @@
   - **Harvest Scraper**: Created `scripts/scrape_harvests.js` to parse News Reel milestone events (1st, 10th, 20th...) for imperial resource estimation.
   - **Multi-Platform Code Watch**: Expanded the repository watcher to aggregate searches from **GitHub** and **GitLab**. Added platform-specific branding and icons to the "Code Watch" feed.
   - **Aggregator API**: Implemented `/api/intel/code-watch` to source and normalize development activity across the ecosystem.
-  - **UI Fix (Shift-Layout)**: Resolved the Admin Sidebar overlap bug. Implemented a conditional `pl-14` layout shift in the root `layout.tsx` for Admin users, ensuring the sidebar no longer covers main content.
-- **SQL Requirement**: Run `src/database/empire-schema.sql` to initialize imperial tracking tables.
-- **Pending**: Actual yield numbers for Mines and Quarries from user.
+  - **Empire Hub**: Successfully populated database with four discovered cities (Aradoth, Izkand, Kryzerok, Ul'Hamra) and associated resource nodes via WebGate scrape.
+- **External Roster Watch**: Live in War Room. Scrapes Agon Metrics global gank feed to deduce and track active enemy/ally rosters.
+- **Security Audit**: Verified that no credentials or sensitive tokens have been committed to Git or recorded in public-facing logs/changelogs.
+- **Directive Imagery**: Updated directive backgrounds with high-fidelity Kryzerok city shot.
+- **SQL Requirement**: User has applied `database_handover.md` SQL to bring schema up to date.
+- **Pending**: None.
 
 - **Agent Focus:** Hardcore Tactical Utility & Personalization
 - **Changes Made:**

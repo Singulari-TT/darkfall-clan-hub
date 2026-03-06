@@ -234,8 +234,8 @@ export default function GoalsPage() {
                         {/* Hero Background */}
                         <div className="absolute inset-0 z-0">
                             <img
-                                src="/images/city-dragon.jpg"
-                                alt="Dragon City"
+                                src="/kryzerok.png"
+                                alt="Kryzerok City"
                                 className="w-full h-full object-cover opacity-90 transition-all duration-700"
                             />
                             <div className="absolute inset-0 bg-black/40"></div>

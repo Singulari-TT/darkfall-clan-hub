@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Share2, Map as MapIcon, ShieldAlert, Zap, Box, Loader2, ChevronRight, Gavel, Flame, Maximize2, Minimize2, Code, Disc, Users } from "lucide-react";
 import InteractiveMap from "@/components/InteractiveMap";
 import WarRoomIntro from "@/components/WarRoomIntro";
 import NativeIntelligenceFeed from "@/components/NativeIntelligenceFeed";
 import CodeWatcherFeed from "@/components/CodeWatcherFeed";
+import ExternalRosterFeed from "@/components/ExternalRosterFeed";
 
-type WarRoomTab = "map" | "ganks" | "bans" | "heatmap" | "code";
+type WarRoomTab = "map" | "ganks" | "bans" | "heatmap" | "code" | "rosters";
 
 export default function WarRoomPage() {
     const [hasEntered, setHasEntered] = useState(false);
@@ -18,6 +20,7 @@ export default function WarRoomPage() {
         { id: "bans", label: "Ban Watch", icon: "🚫", url: "https://www.riseofagon.com/bans/" },
         { id: "heatmap", label: "HeatMap", icon: "🔥", url: "https://www.riseofagon.com/agonmetrics/pvp/heatmap/" },
         { id: "code", label: "Code Watch", icon: "📡" },
+        { id: "rosters", label: "Rosters", icon: "👥" },
     ];
 
     return (
@@ -71,14 +74,12 @@ export default function WarRoomPage() {
                         </div>
                     )}
 
-                    {(activeTab === "ganks" || activeTab === "bans" || activeTab === "code") && (
+                    {(activeTab === "ganks" || activeTab === "bans" || activeTab === "code" || activeTab === "rosters") && ( // Updated condition
                         <div className="absolute inset-0 bg-[#0a0f18] flex items-center justify-center p-8">
                             <div className="w-full h-full max-w-[85%] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden">
-                                {activeTab === "code" ? (
-                                    <CodeWatcherFeed />
-                                ) : (
-                                    <NativeIntelligenceFeed type={activeTab as 'ganks' | 'bans'} />
-                                )}
+                                {activeTab === "code" && <CodeWatcherFeed />}
+                                {activeTab === "rosters" && <ExternalRosterFeed />} {/* New condition for rosters */}
+                                {(activeTab === "ganks" || activeTab === "bans") && <NativeIntelligenceFeed type={activeTab as 'ganks' | 'bans'} />}
                             </div>
                         </div>
                     )}
