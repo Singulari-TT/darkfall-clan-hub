@@ -4,8 +4,9 @@ import { useState } from "react";
 import InteractiveMap from "@/components/InteractiveMap";
 import WarRoomIntro from "@/components/WarRoomIntro";
 import NativeIntelligenceFeed from "@/components/NativeIntelligenceFeed";
+import GitHubWatcherFeed from "@/components/GitHubWatcherFeed";
 
-type WarRoomTab = "map" | "ganks" | "bans" | "heatmap";
+type WarRoomTab = "map" | "ganks" | "bans" | "heatmap" | "code";
 
 export default function WarRoomPage() {
     const [hasEntered, setHasEntered] = useState(false);
@@ -16,6 +17,7 @@ export default function WarRoomPage() {
         { id: "ganks", label: "Gank Feed", icon: "⚔️", url: "https://www.riseofagon.com/agonmetrics/pvp/global/" },
         { id: "bans", label: "Ban Watch", icon: "🚫", url: "https://www.riseofagon.com/bans/" },
         { id: "heatmap", label: "HeatMap", icon: "🔥", url: "https://www.riseofagon.com/agonmetrics/pvp/heatmap/" },
+        { id: "code", label: "Code Watch", icon: "📡" },
     ];
 
     return (
@@ -69,10 +71,14 @@ export default function WarRoomPage() {
                         </div>
                     )}
 
-                    {(activeTab === "ganks" || activeTab === "bans") && (
+                    {(activeTab === "ganks" || activeTab === "bans" || activeTab === "code") && (
                         <div className="absolute inset-0 bg-[#0a0f18] flex items-center justify-center p-8">
                             <div className="w-full h-full max-w-[85%] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden">
-                                <NativeIntelligenceFeed type={activeTab} />
+                                {activeTab === "code" ? (
+                                    <GitHubWatcherFeed />
+                                ) : (
+                                    <NativeIntelligenceFeed type={activeTab as 'ganks' | 'bans'} />
+                                )}
                             </div>
                         </div>
                     )}
