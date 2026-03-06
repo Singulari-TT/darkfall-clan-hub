@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Hammer, Trees, Gem, Mountain, Activity, Shield, MapPin, TrendingUp, Loader2, Zap } from "lucide-react";
+import { Hammer, Trees, Gem, Mountain, Activity, Shield, MapPin, TrendingUp, Loader2, Zap, RefreshCw, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useSession } from "next-auth/react";
 
 interface Holding {
     id: string;
@@ -17,66 +18,110 @@ interface Holding {
 }
 
 export default function EmpirePage() {
+    const { data: session } = useSession();
+    // @ts-ignore
+    const isAdmin = session?.user?.role === 'Admin';
+
     const [holdings, setHoldings] = useState<Holding[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [lastSync, setLastSync] = useState<string | null>(null);
+    const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
-    useEffect(() => {
-        async function fetchEmpireData() {
-            setLoading(true);
-            try {
-                // Fetch holdings and their associated resource nodes
-                const { data: holdingsData, error: hError } = await supabase
-                    .from('Holdings')
-                    .select(`
-                        id, 
-                        name, 
-                        type, 
-                        image_url,
-                        Resource_Nodes (
-                            type,
-                            total_hits
-                        )
-                    `);
+    async function fetchEmpireData() {
+        setLoading(true);
+        try {
+            // Fetch last sync from SystemConfig
+            const { data: syncData } = await supabase
+                .from('SystemConfig')
+                .select('updated_at')
+                .eq('key', 'holdings_last_synced')
+                .single();
 
-                if (hError) throw hError;
+            if (syncData) setLastSync(syncData.updated_at);
 
-                const formattedHoldings: Holding[] = (holdingsData || []).map(h => {
-                    const nodes = (h.Resource_Nodes || []).map((rn: any) => {
-                        let yields: Record<string, number> = {};
-                        if (rn.type === 'Timber Grove') {
-                            yields = { 'Timber': rn.total_hits * 3, 'Resin': rn.total_hits * 2 };
-                        } else if (rn.type === 'Quarry') {
-                            yields = { 'Stone': rn.total_hits * 3, 'Sulfur': rn.total_hits * 0.2 };
-                        } else if (rn.type === 'Mine') {
-                            yields = { 'Iron Ore': rn.total_hits * 3, 'Coal': rn.total_hits * 2, 'Gold': 1 };
-                        } else {
-                            yields = { 'Resources': rn.total_hits * 3 };
-                        }
-                        return {
-                            type: rn.type,
-                            totalHits: rn.total_hits || 0,
-                            estimatedYields: yields
-                        };
-                    });
+            // Fetch holdings and their associated resource nodes
+            const { data: holdingsData, error: hError } = await supabase
+                .from('Holdings')
+                .select(`
+                    id, 
+                    name, 
+                    type, 
+                    image_url,
+                    Resource_Nodes (
+                        node_type,
+                        total_hits
+                    )
+                `);
 
+            if (hError) throw hError;
+
+            const formattedHoldings: Holding[] = (holdingsData || []).map(h => {
+                const nodes = (h.Resource_Nodes || []).map((rn: any) => {
+                    let yields: Record<string, number> = {};
+                    if (rn.node_type === 'Timber Grove') {
+                        yields = { 'Timber': rn.total_hits * 3, 'Resin': rn.total_hits * 2 };
+                    } else if (rn.node_type === 'Quarry') {
+                        yields = { 'Stone': (rn.total_hits || 0) * 3, 'Sulfur': (rn.total_hits || 0) * 0.2 };
+                    } else if (rn.node_type === 'Mine') {
+                        yields = { 'Iron Ore': (rn.total_hits || 0) * 3, 'Coal': (rn.total_hits || 0) * 2, 'Gold': 1 };
+                    } else {
+                        yields = { 'Resources': (rn.total_hits || 0) * 3 };
+                    }
                     return {
-                        id: h.id,
-                        name: h.name,
-                        type: h.type as 'City' | 'Hamlet',
-                        image_url: h.image_url,
-                        nodes: nodes
+                        type: rn.node_type,
+                        totalHits: rn.total_hits || 0,
+                        estimatedYields: yields
                     };
                 });
 
-                setHoldings(formattedHoldings);
-            } catch (err) {
-                console.error("Failed to load empire data:", err);
-            } finally {
-                setLoading(false);
-            }
+                return {
+                    id: h.id,
+                    name: h.name,
+                    type: h.type as 'City' | 'Hamlet',
+                    image_url: h.image_url,
+                    nodes: nodes
+                };
+            });
+
+            setHoldings(formattedHoldings);
+        } catch (err) {
+            console.error("Failed to load empire data:", err);
+        } finally {
+            setLoading(false);
         }
+    }
+
+    useEffect(() => {
         fetchEmpireData();
     }, []);
+
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        setStatusMessage(null);
+        try {
+            const res = await fetch('/api/admin/trigger-scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script: 'holdings-sync' })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setStatusMessage({ text: "Empire sync successful! Holdings updated.", type: 'success' });
+                await fetchEmpireData();
+            } else {
+                setStatusMessage({ text: data.message || "Sync failed. Game servers likely in maintenance.", type: 'error' });
+            }
+        } catch (err) {
+            setStatusMessage({ text: "A network error occurred during sync.", type: 'error' });
+        } finally {
+            setRefreshing(false);
+            // Clear message after 5 seconds
+            setTimeout(() => setStatusMessage(null), 5000);
+        }
+    };
 
     if (loading) {
         return (
@@ -89,12 +134,44 @@ export default function EmpirePage() {
 
     return (
         <div className="min-h-screen bg-[#020617] p-6 lg:p-10">
-            <header className="mb-10">
-                <div className="flex items-center gap-4 mb-2">
-                    <Shield className="w-8 h-8 text-amber-500" />
-                    <h1 className="text-3xl font-black text-white tracking-[0.2em] uppercase">Clan <span className="text-amber-500">Empire</span></h1>
+            <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div className="flex items-center gap-4 mb-2">
+                        <Shield className="w-8 h-8 text-amber-500" />
+                        <h1 className="text-3xl font-black text-white tracking-[0.2em] uppercase">Clan <span className="text-amber-500">Empire</span></h1>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.3em]">Imperial Holding & Resource Logistics Terminal</p>
+                        {lastSync && (
+                            <div className="flex items-center gap-1.5 text-[9px] text-gray-600 font-mono uppercase tracking-widest mt-1">
+                                <Clock className="w-3 h-3" />
+                                Last Global Sync: <span className="text-amber-500/70">{new Date(lastSync).toLocaleString()}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.3em]">Imperial Holding & Resource Logistics Terminal</p>
+
+                {isAdmin && (
+                    <div className="flex flex-col items-end gap-3">
+                        {statusMessage && (
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-widest animate-in fade-in slide-in-from-top-2 duration-300 ${statusMessage.type === 'success'
+                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                    : 'bg-red-500/10 border-red-500/30 text-red-500'
+                                }`}>
+                                {statusMessage.type === 'success' ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                                {statusMessage.text}
+                            </div>
+                        )}
+                        <button
+                            onClick={handleRefresh}
+                            disabled={refreshing}
+                            className="group relative flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/40 px-4 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <RefreshCw className={`w-4 h-4 text-amber-500 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">Refresh Sync</span>
+                        </button>
+                    </div>
+                )}
             </header>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">

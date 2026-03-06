@@ -1,5 +1,5 @@
 import { getBestiaryData } from "@/lib/sheets";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Skull, Droplets, Zap, Sparkles, Flame, Snowflake, Shield, Coins, Gift } from "lucide-react";
 
 export default async function BestiaryPage() {

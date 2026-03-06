@@ -179,11 +179,9 @@ export async function sendOrderToDiscord(orderId: string) {
     if (!order) throw new Error("Order not found");
 
     // Fetch Webhook
-    // Need service role bypass since Clan_Settings might not be public
-    const { createClient } = require('@supabase/supabase-js');
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-    const supabaseAdminLocal = createClient(supabaseUrl, supabaseKey);
+    // Use the centralized server-only admin client
+    const { supabaseAdmin } = require('@/lib/supabase-admin');
+    const supabaseAdminLocal = supabaseAdmin;
 
     const { data: setting } = await supabaseAdminLocal
         .from("Clan_Settings")

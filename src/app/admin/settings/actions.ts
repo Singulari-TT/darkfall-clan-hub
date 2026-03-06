@@ -1,6 +1,6 @@
 "use server";
 
-import { supabaseAdmin } from "@/lib/supabase"; // Use admin bypass since config is secure
+import { supabaseAdmin } from "@/lib/supabase-admin"; // Use admin bypass since config is secure
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/route";
 

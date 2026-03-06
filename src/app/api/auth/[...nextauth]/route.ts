@@ -1,13 +1,7 @@
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
-import { createClient } from "@supabase/supabase-js"
+import { supabaseAdmin } from "@/lib/supabase-admin"
 import { sendDiscordNotification } from "@/lib/discordWebhook"
-
-// Admin client bypasses RLS to allow user creation during login
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export const authOptions = {
     providers: [

@@ -1,16 +1,10 @@
 "use server";
 
 import { supabase } from "@/lib/supabase";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { sendDiscordNotification } from "@/lib/discordWebhook";
-
-// Admin client required for bucket creation
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function submitIntel(formData: FormData) {
     const session = await getServerSession(authOptions);
@@ -21,6 +15,7 @@ export async function submitIntel(formData: FormData) {
 
     const file = formData.get("image") as File | null;
     const description = formData.get("description") as string;
+    const clanName = formData.get("clan_name") as string | null;
 
     // Check if either file OR description is provided
     const hasFile = file && file.size > 0 && file.name !== 'undefined';
@@ -71,7 +66,9 @@ export async function submitIntel(formData: FormData) {
                 user_id: session.user.id,
                 image_url: imageUrl,
                 description: description || "No description provided",
+                clan_name: clanName
             });
+
 
         if (dbError) {
             throw new Error("Failed to save Intel record to database");

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import crypto from "crypto";
 
 function sha1Upper(text: string) {
@@ -101,11 +101,11 @@ async function runHarvestSync(db: any): Promise<{ processed: number; note: strin
                 const [, , nodeType, holdingName, milestone] = harvestMatch;
                 const { data: holding } = await db.from("Holdings").select("id").eq("name", holdingName).single();
                 if (holding) {
-                    const { data: node } = await db.from("Resource_Nodes").select("id, total_hits").eq("holding_id", (holding as any).id).eq("type", nodeType).single();
+                    const { data: node } = await db.from("Resource_Nodes").select("id, total_hits").eq("holding_id", (holding as any).id).eq("node_type", nodeType).single();
                     if (node) {
                         await db.from("Resource_Nodes").update({ total_hits: Math.max((node as any).total_hits, parseInt(milestone)) }).eq("id", (node as any).id);
                     } else {
-                        await db.from("Resource_Nodes").insert({ holding_id: (holding as any).id, type: nodeType, total_hits: parseInt(milestone) });
+                        await db.from("Resource_Nodes").insert({ holding_id: (holding as any).id, node_type: nodeType, total_hits: parseInt(milestone) });
                     }
                     count++;
                 }
@@ -118,6 +118,75 @@ async function runHarvestSync(db: any): Promise<{ processed: number; note: strin
     return { processed: count, note: `Synced ${count} harvest events to Holdings` };
 }
 
+async function runHoldingsSync(db: any): Promise<{ processed: number; note: string }> {
+    const sessionKey = await authenticate();
+    const baseUrl = "http://192.227.120.142:50313/spenefett/fwd";
+
+    // 1. Request Holdings List (Request 102 with QETUO)
+    const resp = await fetch(`${baseUrl}?SessionKey=${sessionKey}&WebGateRequest=102&RequestOwner=QETUO`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ ClanID: "104" }),
+    });
+    const text = await resp.text();
+    const match = text.match(/<Data>(.*?)<\/Data>/);
+    if (!match) return { processed: 0, note: "No holdings data found (Likely server maintenance)" };
+
+    const xml = LZW_decompress(match[1].split(","));
+    const holdingIDs = xml.match(/<HoldingID>(.*?)<\/HoldingID>/g);
+    if (!holdingIDs) return { processed: 0, note: "No holding IDs found in list" };
+
+    let totalUpdated = 0;
+    for (const hMatch of holdingIDs) {
+        const hId = hMatch.match(/<HoldingID>(.*?)<\/HoldingID>/)![1];
+
+        // 2. Request Individual Holding Detail (Request 103/104 usually)
+        // Testing Request 103 for details as per typical WebGate pattern
+        const respDetail = await fetch(`${baseUrl}?SessionKey=${sessionKey}&WebGateRequest=103&RequestOwner=QETUO`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ HoldingID: hId }),
+        });
+        const textDetail = await respDetail.text();
+        const detailMatch = textDetail.match(/<Data>(.*?)<\/Data>/);
+        if (detailMatch) {
+            const detailXml = LZW_decompress(detailMatch[1].split(","));
+            const nameMatch = detailXml.match(/<HoldingName>(.*?)<\/HoldingName>/);
+            const name = nameMatch ? nameMatch[1] : `Holding_${hId}`;
+
+            // Upsert Holding
+            const { data: holding } = await db.from("Holdings").upsert({ name, type: 'City' }, { onConflict: 'name' }).select('id').single();
+            const holdingDbId = (holding as any).id;
+
+            // Extract Resource Nodes (e.g. <BuildingName>Timber Grove</BuildingName><HitsPercentage>1543</HitsPercentage>)
+            const nodes = detailXml.match(/<BuildingName>(.*?)<\/BuildingName>[\s\S]*?<HitsPercentage>(.*?)<\/HitsPercentage>/g);
+            if (nodes) {
+                for (const nodeXml of nodes) {
+                    const nodeType = nodeXml.match(/<BuildingName>(.*?)<\/BuildingName>/)![1];
+                    const hits = parseInt(nodeXml.match(/<HitsPercentage>(.*?)<\/HitsPercentage>/)![1]);
+
+                    if (['Timber Grove', 'Quarry', 'Mine', 'Herb Patch'].includes(nodeType)) {
+                        await db.from("Resource_Nodes").upsert({
+                            holding_id: holdingDbId,
+                            node_type: nodeType,
+                            total_hits: hits
+                        }, { onConflict: 'holding_id,node_type' });
+                    }
+                }
+            }
+            totalUpdated++;
+        }
+    }
+
+    // Update sync timestamp
+    await db.from("SystemConfig").upsert({
+        key: "holdings_last_synced",
+        value: new Date().toISOString()
+    }, { onConflict: "key" });
+
+    return { processed: totalUpdated, note: `Successfully synced ${totalUpdated} holdings and their resource nodes.` };
+}
+
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
@@ -126,7 +195,7 @@ export async function POST(req: Request) {
         }
 
         const { script } = await req.json();
-        const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+        const db = supabaseAdmin;
 
         let result: { processed: number; note: string };
         switch (script) {
@@ -135,6 +204,9 @@ export async function POST(req: Request) {
                 break;
             case "harvest-sync":
                 result = await runHarvestSync(db);
+                break;
+            case "holdings-sync":
+                result = await runHoldingsSync(db);
                 break;
             default:
                 return NextResponse.json({ error: `Unknown script: ${script}` }, { status: 400 });

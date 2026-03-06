@@ -6,14 +6,29 @@ import InteractiveMap from "@/components/InteractiveMap";
 import WarRoomIntro from "@/components/WarRoomIntro";
 import NativeIntelligenceFeed from "@/components/NativeIntelligenceFeed";
 import CodeWatcherFeed from "@/components/CodeWatcherFeed";
-import ExternalRosterFeed from "@/components/ExternalRosterFeed";
+import ClanRosterFeed from "@/components/ClanRosterFeed";
 import TacticalHeatmap from "@/components/TacticalHeatmap";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+
 
 type WarRoomTab = "map" | "ganks" | "bans" | "heatmap" | "code" | "rosters";
 
 export default function WarRoomPage() {
+    const searchParams = useSearchParams();
     const [hasEntered, setHasEntered] = useState(false);
     const [activeTab, setActiveTab] = useState<WarRoomTab>("map");
+
+    useEffect(() => {
+        if (!searchParams) return;
+        const tab = searchParams.get("tab") as WarRoomTab;
+        if (tab && ["map", "ganks", "bans", "heatmap", "code", "rosters"].includes(tab)) {
+            setActiveTab(tab);
+            setHasEntered(true); // Auto-enter if tab is specified
+        }
+    }, [searchParams]);
+
+
 
     const tabs: { id: WarRoomTab; label: string; icon: string; url?: string }[] = [
         { id: "map", label: "Tactical Map", icon: "🗺️" },
@@ -79,8 +94,9 @@ export default function WarRoomPage() {
                         <div className="absolute inset-0 bg-[#0a0f18] flex items-center justify-center p-8">
                             <div className="w-full h-full max-w-[85%] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden">
                                 {activeTab === "code" && <CodeWatcherFeed />}
-                                {activeTab === "rosters" && <ExternalRosterFeed />} {/* New condition for rosters */}
+                                {activeTab === "rosters" && <ClanRosterFeed />}
                                 {(activeTab === "ganks" || activeTab === "bans") && <NativeIntelligenceFeed type={activeTab as 'ganks' | 'bans'} />}
+
                             </div>
                         </div>
                     )}

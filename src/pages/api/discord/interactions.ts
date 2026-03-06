@@ -1,12 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { verifyDiscordRequest } from "@/lib/discordAuth";
-import { supabase } from "@/lib/supabase";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 // We need to disable the default Next.js body parser so we can verify the raw cryptogrpahic signature
 export const config = {

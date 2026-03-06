@@ -1,10 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
-
-// Setup admin client
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from "./supabase-admin";
 
 /**
  * Sends a generic discord notification. If it's intel-related, it uses the intel webhook.

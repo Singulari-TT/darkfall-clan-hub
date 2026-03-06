@@ -1,14 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
-
-/**
- * Specialized Bot functions to proactively hit Discord endpoints.
- */
-
-// Setup admin client
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from "./supabase-admin";
 
 /**
  * Sends a rich embed to the configured Operations webhook when a new Siege/Event is scheduled

@@ -8,8 +8,3 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-export const supabaseAdmin = serviceRoleKey
-    ? createClient(supabaseUrl, serviceRoleKey)
-    : supabase; // Fallback to anon if not provided (though it should be the service role key for admin actions)
