@@ -7,6 +7,7 @@ import WarRoomIntro from "@/components/WarRoomIntro";
 import NativeIntelligenceFeed from "@/components/NativeIntelligenceFeed";
 import CodeWatcherFeed from "@/components/CodeWatcherFeed";
 import ExternalRosterFeed from "@/components/ExternalRosterFeed";
+import TacticalHeatmap from "@/components/TacticalHeatmap";
 
 type WarRoomTab = "map" | "ganks" | "bans" | "heatmap" | "code" | "rosters";
 
@@ -85,24 +86,8 @@ export default function WarRoomPage() {
                     )}
 
                     {activeTab === "heatmap" && (
-                        <div className="absolute inset-0 bg-[#0a0f18] flex flex-col items-center justify-center p-8 text-center">
-                            <div className="max-w-2xl mb-8">
-                                <h2 className="text-3xl font-black text-white tracking-[0.2em] uppercase mb-4">Tactical HeatMap</h2>
-                                <p className="text-sm text-gray-500 font-mono">External security protocols (X-Frame-Options) prevent direct terminal rendering of the HeatMap. Access via secure external uplink below.</p>
-                            </div>
-
-                            <a
-                                href="https://www.riseofagon.com/agonmetrics/pvp/heatmap/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group relative px-10 py-4 bg-red-500/10 border border-red-500/50 hover:bg-red-500 hover:text-white transition-all duration-500 rounded-xl overflow-hidden"
-                            >
-                                <div className="absolute inset-0 bg-red-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                                <span className="relative z-10 font-black tracking-[0.3em] uppercase">Establish Direct Uplink</span>
-                            </a>
-
-                            <div className="mt-12 w-full max-w-md h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                            <p className="mt-8 text-[10px] text-gray-700 uppercase tracking-widest italic">Note: Neural interface currently restricted to browser-native view.</p>
+                        <div className="absolute inset-0 bg-[#0a0f18] p-4 lg:p-12">
+                            <TacticalHeatmap />
                         </div>
                     )}
                 </main>
