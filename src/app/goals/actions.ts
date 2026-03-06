@@ -23,8 +23,9 @@ export interface ClanGoal {
 
 export async function fetchClanGoals() {
     const session = await getServerSession(authOptions);
+    // If no session, we return an empty array gracefully instead of throwing
     if (!session || !session.user) {
-        throw new Error("Unauthorized");
+        return [];
     }
 
     const { data, error } = await supabase
@@ -111,13 +112,16 @@ export async function deleteClanGoal(id: string) {
 
 export async function getFeaturedProject() {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user || !session.user.id) return { featuredProject: null, isAdmin: false };
 
     const { data: settingData } = await supabase
         .from("Clan_Settings")
         .select("value")
         .eq("key", "featured_project")
         .single();
+
+    if (!session || !session.user || !session.user.id) {
+        return { featuredProject: settingData?.value || null, isAdmin: false };
+    }
 
     const { data: userRecord } = await supabase
         .from("Users")

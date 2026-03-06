@@ -114,8 +114,12 @@ export default function LootSplitter() {
 
     useEffect(() => {
         const handleGlobalPaste = async (e: ClipboardEvent) => {
-            // Prevent default paste if we're focused on an input
-            if (e.target instanceof HTMLInputElement) return;
+            // Only fire if there's actually an image in the clipboard
+            const hasImage = Array.from(e.clipboardData?.items || []).some(i => i.type.startsWith('image'));
+            if (!hasImage) return;
+            // Don't fire if an input or textarea is focused (user is typing)
+            const focused = document.activeElement;
+            if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement) return;
             if (!e.clipboardData) return;
 
             const fakeReactEvent = {

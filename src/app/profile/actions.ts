@@ -210,7 +210,7 @@ export async function toggleMain(charId: string) {
     }
 
     revalidatePath("/profile");
-    revalidatePath("/directory");
+    revalidatePath("/tavern");
     return true;
 }
 

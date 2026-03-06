@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 
 // Initialize the Google Gen AI Client
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export async function POST(req: Request) {
     try {
@@ -23,8 +23,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "GEMINI_API_KEY is missing from environment variables." }, { status: 500 });
         }
 
-        // Strip the data URI preamble to get raw base64
-        const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+        // Extract mimeType from the data URI & strip the preamble
+        const mimeMatch = imageBase64.match(/^data:(image\/[\w+.-]+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+        const base64Data = imageBase64.replace(/^data:image\/[\w+.-]+;base64,/, "");
 
         const prompt = `
         You are an elite video game A.I. assisting a clan with "Loot Splitting".
@@ -46,19 +48,18 @@ export async function POST(req: Request) {
         `;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash-latest',
+            model: 'gemini-1.5-flash',
             contents: [
                 prompt,
                 {
                     inlineData: {
                         data: base64Data,
-                        mimeType: 'image/png' // Assuming the canvas/clipboard crop outputs PNG
+                        mimeType
                     }
                 }
             ]
         });
 
-        // The response might contain markdown formatting (```json) despite instructions, so we clean it
         let rawJson = response.text;
         if (rawJson?.startsWith('```json')) {
             rawJson = rawJson.replace(/```json\n/, '').replace(/\n```$/, '');

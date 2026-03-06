@@ -79,7 +79,7 @@ export default async function Vault() {
                                             {item.icon_path ? (
                                                 <img src={item.icon_path} alt={item.item_name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <span className="text-gray-600 text-[10px] font-bold uppercase tracking-wider">No Icon</span>
+                                                <span className="text-2xl filter drop-shadow-sm">📦</span>
                                             )}
                                         </div>
                                     </div>

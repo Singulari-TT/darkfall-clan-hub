@@ -127,13 +127,15 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
 
           {/* Base Card Template with Glassmorphism */}
-          <Link href="/directory" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
-            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 group-hover:scale-110 transition-all shadow-inner">
-              <span className="text-2xl drop-shadow-md">👥</span>
+          {/* Card: Tavern */}
+          <Link href="/tavern" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-[#5865F2]/30 hover:shadow-[0_8px_30px_rgba(88,101,242,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#5865F2]/10 rounded-full blur-3xl group-hover:bg-[#5865F2]/20 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-[#5865F2]/10 flex items-center justify-center border border-[#5865F2]/20 group-hover:bg-[#5865F2]/20 group-hover:scale-110 transition-all shadow-inner">
+              <span className="text-2xl drop-shadow-md">🍺</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
-              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Member Roster</h2>
-              <p className="text-gray-400 text-sm leading-relaxed">View active operatives, rank hierarchy, and registered database identities.</p>
+              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">The Tavern</h2>
+              <p className="text-gray-400 text-sm leading-relaxed">Operative roll call, personal dossiers, and the clan bulletin board.</p>
             </div>
           </Link>
 

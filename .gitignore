@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# LLM project context (internal — do not publish)
+PROJECT_CONTEXT.md
