@@ -43,7 +43,6 @@ export async function fetchMyProfile() {
             discord_id,
             role,
             display_name,
-            bio,
             Characters (
                 id,
                 name,
@@ -81,20 +80,7 @@ export async function updateDisplayName(newName: string) {
 }
 
 export async function updateBio(newBio: string) {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user || !session.user.id) {
-        throw new Error("Unauthorized");
-    }
-
-    const { error } = await supabase
-        .from("Users")
-        .update({ bio: newBio })
-        .eq(getIdField(session.user.id), session.user.id);
-
-    if (error) {
-        console.error("Error updating bio:", error);
-        throw new Error("Failed to update bio");
-    }
+    console.warn("updateBio ignored: 'bio' column missing in Users table.");
     return true;
 }
 

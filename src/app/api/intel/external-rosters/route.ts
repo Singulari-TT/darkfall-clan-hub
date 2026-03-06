@@ -10,14 +10,10 @@ export async function GET() {
 
         const html = await response.text();
 
-        // Regex to find table rows and extract killer/victim data
-        // Example structure: [Character Name] [Clan Name]
-        // This regex is slightly broader to handle the potential variations in the HTML structure
-        const gankRowRegex = /<tr[^>]*>[\s\S]*?<td[^>]*>(.*?)<\/td>[\s\S]*?<td[^>]*class="killer-cell"[^>]*>([\s\S]*?)<\/td>[\s\S]*?<td[^>]*class="victim-cell"[^>]*>([\s\S]*?)<\/td>[\s\S]*?<\/tr>/g;
-
-        // Secondary regexes to extract name and clan from a cell
-        const nameRegex = /class="character-name"[^>]*>(.*?)<\/span>/;
-        const clanRegex = /class="clan-tag"[^>]*>[\s\S]*?>(.*?)<\/a>/;
+        // Regex setup (Updated for new HTML structure)
+        const gankRowRegex = /<tr[^>]*>[\s\S]*?<td[^>]*class="timestamp-data"[^>]*>(.*?)<\/td>[\s\S]*?<td>([\s\S]*?)<\/td>[\s\S]*?<td>([\s\S]*?)<\/td>[\s\S]*?<\/tr>/g;
+        const nameRegex = /^([\s\S]*?)\s*<span/;
+        const clanRegex = /<span[^>]*class="clanname-minimal"[^>]*>(.*?)<\/span>/;
 
         const clans: Record<string, { members: Record<string, { lastSeen: string, count: number }>, totalActivity: number }> = {};
 

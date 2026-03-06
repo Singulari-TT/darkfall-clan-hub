@@ -151,7 +151,7 @@ export default function ProfilePage() {
                                     <div className="group/bio bg-black/40 p-3 rounded-lg border border-red-900/20 shadow-inner relative min-h-[80px]">
                                         <button onClick={() => setIsEditingBio(true)} className="absolute top-2 right-2 text-red-900 hover:text-red-500 text-xs font-bold tracking-wider opacity-0 group-hover/bio:opacity-100 transition-all border border-red-900/30 px-2 py-1 rounded bg-black z-20">EDIT</button>
                                         <p className="text-sm text-stone-400 font-serif italic whitespace-pre-wrap leading-relaxed pr-10">
-                                            {profile.bio || "No lore inscribed yet."}
+                                            {profile.bio || "No lore inscribed yet (System Note: 'bio' column missing in DB)."}
                                         </p>
                                     </div>
                                 )}

@@ -15,7 +15,7 @@ export default async function TavernPage() {
         .from("Users")
         .select(`
             id, discord_id, display_name, role, created_at, status,
-            Characters (id, name, is_visible, admin_only, is_main)
+            Characters (id, name, is_visible, admin_only, is_main, is_online, last_online)
         `)
         .eq("status", "Active")
         .neq("discord_id", "mock_discord_admin")
@@ -84,6 +84,8 @@ export default async function TavernPage() {
                                 const isCurrentUser = currentUserId === user.discord_id;
                                 const isAdminRole = user.role === "Admin";
                                 const mainChar = user.Characters?.find((c: any) => c.is_main);
+                                const isOnline = mainChar?.is_online;
+                                const lastSeen = mainChar?.last_online;
 
                                 return (
                                     <div
@@ -94,8 +96,13 @@ export default async function TavernPage() {
                                             }`}
                                     >
                                         {/* Avatar icon */}
-                                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border text-lg ${isAdminRole ? "bg-[#5865F2]/20 border-[#5865F2]/30" : "bg-white/5 border-white/10"}`}>
-                                            {isAdminRole ? "👑" : (mainChar ? "🗡️" : "🛡️")}
+                                        <div className="relative shrink-0">
+                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center border text-lg ${isAdminRole ? "bg-[#5865F2]/20 border-[#5865F2]/30" : "bg-white/5 border-white/10"}`}>
+                                                {isAdminRole ? "👑" : (mainChar ? "🗡️" : "🛡️")}
+                                            </div>
+                                            {isOnline && (
+                                                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#121212] rounded-full animate-pulse" />
+                                            )}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
@@ -111,8 +118,21 @@ export default async function TavernPage() {
                                             </div>
                                             <div className="flex items-center gap-2 mt-0.5">
                                                 {mainChar ? (
-                                                    <span className="text-[10px] text-gray-500 font-mono truncate">
+                                                    <span className="text-[10px] text-gray-500 font-mono truncate flex items-center gap-2">
                                                         {mainChar.name}
+                                                        {lastSeen && !isOnline && (
+                                                            <span className="text-[9px] text-stone-600 font-serif lowercase italic">
+                                                                · last seen {new Date(lastSeen).toLocaleDateString() === new Date().toLocaleDateString()
+                                                                    ? new Date(lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                                                    : new Date(lastSeen).toLocaleDateString()
+                                                                }
+                                                            </span>
+                                                        )}
+                                                        {isOnline && (
+                                                            <span className="text-[9px] text-emerald-500 font-serif lowercase italic">
+                                                                · online now
+                                                            </span>
+                                                        )}
                                                     </span>
                                                 ) : (
                                                     <span className="text-[10px] text-amber-600/70 italic">No main registered</span>

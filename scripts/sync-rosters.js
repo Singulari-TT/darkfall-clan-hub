@@ -1,21 +1,25 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+require('dotenv').config({ path: './.env.local' });
+const { createClient } = require('@supabase/supabase-js');
 
-export async function POST() {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("Missing Supabase credentials. Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.");
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function syncExternalRosters() {
+    console.log("Starting External Roster sync from Agon Metrics...");
+
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session || (session.user as any)?.role !== 'Admin') {
-            return NextResponse.json({ success: false, error: "Unauthorized: Admin clearance required." }, { status: 403 });
-        }
-
         const response = await fetch("https://www.riseofagon.com/agonmetrics/pvp/global/", {
             cache: 'no-store'
         });
 
-        if (!response.ok) throw new Error("Failed to reach Agon Metrics");
+        if (!response.ok) throw new Error(`Failed to reach Agon Metrics: ${response.statusText}`);
 
         const html = await response.text();
 
@@ -24,13 +28,13 @@ export async function POST() {
         const nameRegex = /^([\s\S]*?)\s*<span/;
         const clanRegex = /<span[^>]*class="clanname-minimal"[^>]*>(.*?)<\/span>/;
 
-        const clans: Record<string, { members: Record<string, { lastSeen: string, count: number }>, totalActivity: number }> = {};
+        const clans = {};
 
         let match;
         while ((match = gankRowRegex.exec(html)) !== null) {
             const [_, timeStr, killerHtml, victimHtml] = match;
 
-            const processCell = (cellHtml: string) => {
+            const processCell = (cellHtml) => {
                 const nameMatch = cellHtml.match(nameRegex);
                 const clanMatch = cellHtml.match(clanRegex);
 
@@ -77,8 +81,13 @@ export async function POST() {
             };
         });
 
+        if (upsertData.length === 0) {
+            console.log("No clan data parsed from Agon Metrics. Check regex or source HTML.");
+            return;
+        }
+
         // Upsert to Supabase
-        const { error: upsertError } = await supabaseAdmin
+        const { error: upsertError } = await supabase
             .from("ExternalClanRosters")
             .upsert(upsertData, { onConflict: 'clan_name' });
 
@@ -87,13 +96,12 @@ export async function POST() {
             throw new Error(`Database upsert failed: ${upsertError.message}`);
         }
 
-        return NextResponse.json({
-            success: true,
-            clansUpdated: upsertData.length
-        });
+        console.log(`Successfully updated ${upsertData.length} clans in ExternalClanRosters.`);
 
-    } catch (error: any) {
-        console.error("Refresh Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error("Sync Error:", error.message);
+        process.exit(1);
     }
 }
+
+syncExternalRosters();

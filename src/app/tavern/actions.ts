@@ -16,7 +16,7 @@ export type TavernPost = {
 
 export async function fetchTavernPosts(): Promise<TavernPost[]> {
     const { data, error } = await supabase
-        .from("Tavern_Posts")
+        .from("tavern_posts")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50);

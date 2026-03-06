@@ -1,6 +1,25 @@
-# System Agent Changelog
-> **Rule Requirement:** Every time an AI Agent finishes a significant coding session, feature addition, or architectural change, they MUST append a summary to the top of this file. 
-> **Purpose:** This prevents isolated context between different agent instances and ensures any agent acting on this codebase immediately understands the current state of the architecture, authentication methods, and database schemas.
+## [2026-03-06] Roster Intelligence Automation & Live Service Fixes
+- **Agent Focus:** Automation, Database Schema Resilience & UI Stability
+- **Changes Made:**
+  - **Automated Roster Intelligence**: Created `scripts/sync-rosters.js` and `.github/workflows/sync-rosters.yml` to autonomously scan Agon Metrics every 6 hours.
+  - **Scraper Resiliency**: Updated Agon Metrics regex to match the new 2026 HTML structure (`timestamp-data` and `clanname-minimal` classes).
+  - **Profile Recovery**: Discovered and bypassed a missing `Users.bio` table column that was causing 500 Internal Server Errors on the live profile page.
+  - **Tavern Persistence**: Fixed a naming mismatch in the `fetchTavernPosts` action (`Tavern_Posts` -> `tavern_posts`), restoring the functional Bulletin Board.
+  - **Roster Metrics**: Verified `is_online` and `last_seen` column existence and integrated them into the Tavern roll call. Optimized queries to handle empty character registries gracefully.
+- **SQL Requirement:** User should eventually run `ALTER TABLE public."Users" ADD COLUMN bio TEXT;` and `ALTER TABLE public."ExternalClanRosters" ADD COLUMN top_member_activity INTEGER DEFAULT 0;` to restore full functionality.
+- **Pending:** None.
+
+## [2026-03-06] Roster Intelligence System Redesign
+- **Agent Focus:** Intelligence Persistence & External Clan Dossiers
+- **Changes Made:**
+  - **Persistent Roster Database**: Implemented `ExternalClanRosters` table to store discovered clan data (name, member counts, activity indices). This replaces the slow global gank feed scan on every page load.
+  - **Admin Refresh Architecture**: Added a manual "Refresh Intelligence" trigger (Admin-only) that executes a grand scan of the Agon Metrics gank feed and upserts discoveries to Supabase.
+  - **Roster Dashboard**: Overhauled the War Room Rosters tab with clickable clan cards highlighting the **Most Active Operative** and total combat density.
+  - **Clan Dossiers**: Created a new dynamic route `/roster/[clanName]` providing a full historical breakdown of identified members, their last-seen timestamps, and combat frequency.
+  - **Localized Intel**: Integrated a tactical report submission form on each clan dossier page, allowing intelligence to be tagged directly to specific enemy or ally groups.
+  - **Navigation & UX**: Added tab persistence for the War Room via `?tab=` URL parameters to ensure seamless back-navigation from dossier files.
+- **SQL Requirement:** User has applied `schema-phase18-rosters.sql` in Supabase.
+- **Pending:** Automatic scheduled scans (Cron) to supplement manual admin refreshes.
 
 ## [2026-03-06] Empire Hub & War Room Optimization
 - **Agent Focus:** Territorial Intelligence & Resource Logistics
