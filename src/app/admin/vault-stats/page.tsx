@@ -55,7 +55,7 @@ export default async function VaultStatsPage() {
                             <thead>
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Operative</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Member</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Item</th>
                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Amount</th>
                                 </tr>
@@ -74,8 +74,8 @@ export default async function VaultStatsPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${entry.quantity > 0
-                                                    ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                                                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                                ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                                                : 'bg-red-500/10 text-red-400 border border-red-500/20'
                                                 }`}>
                                                 {entry.quantity > 0 ? '+' : ''}{entry.quantity}
                                             </span>

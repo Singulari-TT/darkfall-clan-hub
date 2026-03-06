@@ -92,7 +92,7 @@ export default function Home() {
         <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h1 className="text-4xl md:text-5xl font-heading font-black text-white tracking-widest mb-2 drop-shadow-md">
-              {greeting}, <span className="text-[#5865F2]">{session?.user?.name || "Operative"}</span>
+              {greeting}, <span className="text-[#5865F2]">{session?.user?.name || "Friend"}</span>
             </h1>
             <p className="text-lg text-gray-400 max-w-2xl font-sans">
               Central command console. Your data feeds are currently synced and tracking live metrics.
@@ -168,8 +168,8 @@ export default function Home() {
               <span className="text-2xl drop-shadow-md">🗺️</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
-              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Tactical Map</h2>
-              <p className="text-gray-400 text-sm leading-relaxed">Access the interactive high-resolution map node layer for operational coordination.</p>
+              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">War Room</h2>
+              <p className="text-gray-400 text-sm leading-relaxed">Access Agon intelligence: Live gank feeds, heatmap overlays, and tactical coordination.</p>
             </div>
           </Link>
 
@@ -212,6 +212,17 @@ export default function Home() {
           {/* Card: Goals / Directives (Special Interactive Card) */}
           <div className="relative md:col-span-2 group mt-4">
             <Link href="/goals" className="block relative overflow-hidden bg-[#5865F2]/5 backdrop-blur-xl border border-[#5865F2]/20 rounded-2xl p-8 hover:bg-[#5865F2]/10 hover:border-[#5865F2]/50 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-[0_0_30px_rgba(88,101,242,0.2)] duration-300">
+              {/* Dragon Background */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src="/images/city-dragon.jpg"
+                  alt="Dragon City"
+                  className="w-full h-full object-cover opacity-90 transition-all duration-700"
+                />
+                <div className="absolute inset-0 bg-black/40"></div>
+                <div className="absolute inset-0 bg-[#5865F2]/10 mix-blend-overlay"></div>
+              </div>
+
               <div className="absolute top-0 right-0 w-96 h-96 bg-[#5865F2]/10 rounded-full blur-[80px] group-hover:bg-[#5865F2]/20 transition-all duration-500 -mr-20 -mt-20 pointer-events-none"></div>
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 z-10 relative">

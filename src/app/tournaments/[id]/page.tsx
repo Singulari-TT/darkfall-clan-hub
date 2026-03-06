@@ -8,9 +8,13 @@ import {
     updateTournamentStatus,
     deleteTournament,
     setPlacement,
+    fetchMatches,
+    generateBrackets,
     Tournament,
     TournamentParticipant,
+    TournamentMatch,
 } from "../actions";
+import TournamentBracket from "../components/TournamentBracket";
 
 const statusStyle: Record<string, string> = {
     Open: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
@@ -32,6 +36,8 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
 
     const [tournament, setTournament] = useState<Tournament | null>(null);
     const [participants, setParticipants] = useState<TournamentParticipant[]>([]);
+    const [matches, setMatches] = useState<TournamentMatch[]>([]);
+    const [view, setView] = useState<"roster" | "bracket">("roster");
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -46,10 +52,14 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
 
     const load = () => {
         setIsLoading(true);
-        fetchTournamentById(id)
-            .then(({ tournament, participants, currentUserId }) => {
+        Promise.all([
+            fetchTournamentById(id),
+            fetchMatches(id)
+        ])
+            .then(([{ tournament, participants, currentUserId }, matches]) => {
                 setTournament(tournament);
                 setParticipants(participants);
+                setMatches(matches);
                 setCurrentUserId(currentUserId);
                 // Seed placement editor with current values
                 const placements: Record<string, string> = {};
@@ -112,6 +122,17 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
             try {
                 await setPlacement(participantId, isNaN(num as number) ? null : num);
                 load();
+            } catch (e: any) { setError(e.message); }
+        });
+    };
+
+    const handleGenerateBracket = () => {
+        if (!confirm("Generate tournament brackets? This will shuffle seeds.")) return;
+        startTransition(async () => {
+            try {
+                await generateBrackets(id);
+                load();
+                setView("bracket");
             } catch (e: any) { setError(e.message); }
         });
     };
@@ -230,66 +251,94 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
                         {/* Participants / Leaderboard */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
                             <div className="flex items-center justify-between mb-5 border-b border-white/10 pb-4">
-                                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <span className="text-amber-400">👥</span>
-                                    {tournament.status === "Ended" ? "Final Results" : "Registered Operatives"}
-                                    <span className="text-sm font-normal text-gray-500">({participants.length})</span>
-                                </h2>
+                                <div className="flex items-center gap-6">
+                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <span className="text-amber-400">👥</span>
+                                        {tournament.status === "Ended" ? "Final Results" : "Competition"}
+                                    </h2>
+                                    <div className="flex bg-black/40 p-1 rounded-lg border border-white/10">
+                                        <button
+                                            onClick={() => setView("roster")}
+                                            className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${view === 'roster' ? 'bg-amber-500/20 text-amber-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                        >
+                                            Roster
+                                        </button>
+                                        {tournament.format !== "Free For All" && (
+                                            <button
+                                                onClick={() => setView("bracket")}
+                                                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${view === 'bracket' ? 'bg-amber-500/20 text-amber-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                            >
+                                                Bracket
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                <span className="text-sm font-normal text-gray-500">({participants.length})</span>
                             </div>
 
-                            {sortedParticipants.length === 0 ? (
-                                <p className="text-gray-600 italic text-center py-10">No participants yet. Be the first to sign up!</p>
-                            ) : (
-                                <div className="space-y-2.5">
-                                    {sortedParticipants.map((p, i) => {
-                                        const icon = placementIcon(p.placement);
-                                        const isMe = p.user_id === currentUserId;
-                                        return (
-                                            <div
-                                                key={p.id}
-                                                className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isMe ? "bg-amber-500/10 border-amber-500/20" : "bg-black/30 border-white/5"}`}
-                                            >
-                                                {/* Rank badge */}
-                                                <div className="w-8 text-center font-bold text-lg">
-                                                    {icon ?? <span className="text-gray-600 text-sm font-mono">{i + 1}</span>}
-                                                </div>
+                            {view === "roster" ? (
+                                <>
+                                    {sortedParticipants.length === 0 ? (
+                                        <p className="text-gray-600 italic text-center py-10">No participants yet. Be the first to sign up!</p>
+                                    ) : (
+                                        <div className="space-y-2.5">
+                                            {sortedParticipants.map((p, i) => {
+                                                const icon = placementIcon(p.placement);
+                                                const isMe = p.user_id === currentUserId;
+                                                return (
+                                                    <div
+                                                        key={p.id}
+                                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isMe ? "bg-amber-500/10 border-amber-500/20" : "bg-black/30 border-white/5"}`}
+                                                    >
+                                                        {/* Rank badge */}
+                                                        <div className="w-8 text-center font-bold text-lg">
+                                                            {icon ?? <span className="text-gray-600 text-sm font-mono">{i + 1}</span>}
+                                                        </div>
 
-                                                <div className="flex-1">
-                                                    <p className={`font-bold text-sm ${isMe ? "text-amber-300" : "text-white"}`}>
-                                                        {p.display_name}
-                                                        {isMe && <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-amber-500/70">You</span>}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">⚔️ {p.character_name}</p>
-                                                </div>
+                                                        <div className="flex-1">
+                                                            <p className={`font-bold text-sm ${isMe ? "text-amber-300" : "text-white"}`}>
+                                                                {p.display_name}
+                                                                {isMe && <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-amber-500/70">You</span>}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">⚔️ {p.character_name}</p>
+                                                        </div>
 
-                                                <p className="text-xs text-gray-600 hidden sm:block">
-                                                    {new Date(p.registered_at).toLocaleDateString()}
-                                                </p>
+                                                        <p className="text-xs text-gray-600 hidden sm:block">
+                                                            {new Date(p.registered_at).toLocaleDateString()}
+                                                        </p>
 
-                                                {/* Placement editor for creator/admin after tournament ends */}
-                                                {isCreatorOrAdmin && tournament.status === "Ended" && (
-                                                    <div className="flex items-center gap-1.5">
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            className="w-12 bg-black/50 border border-white/10 rounded-lg px-1.5 py-1 text-white text-xs outline-none focus:border-amber-500/50 text-center"
-                                                            value={editingPlacement[p.id] ?? ""}
-                                                            onChange={(e) => setEditingPlacement((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                                                            placeholder="#"
-                                                        />
-                                                        <button
-                                                            onClick={() => handleSavePlacement(p.id)}
-                                                            disabled={isPending}
-                                                            className="text-[10px] px-2 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg hover:bg-amber-500/30 transition-all"
-                                                        >
-                                                            Set
-                                                        </button>
+                                                        {/* Placement editor for creator/admin after tournament ends */}
+                                                        {isCreatorOrAdmin && tournament.status === "Ended" && (
+                                                            <div className="flex items-center gap-1.5">
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    className="w-12 bg-black/50 border border-white/10 rounded-lg px-1.5 py-1 text-white text-xs outline-none focus:border-amber-500/50 text-center"
+                                                                    value={editingPlacement[p.id] ?? ""}
+                                                                    onChange={(e) => setEditingPlacement((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                                                                    placeholder="#"
+                                                                />
+                                                                <button
+                                                                    onClick={() => handleSavePlacement(p.id)}
+                                                                    disabled={isPending}
+                                                                    className="text-[10px] px-2 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg hover:bg-amber-500/30 transition-all"
+                                                                >
+                                                                    Set
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <TournamentBracket
+                                    matches={matches}
+                                    isCreator={isCreatorOrAdmin}
+                                    onRefresh={load}
+                                />
                             )}
                         </div>
                     </div>
@@ -333,6 +382,16 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
                                         className="w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 font-bold text-sm transition-all disabled:opacity-40"
                                     >
                                         🚀 Mark as In Progress
+                                    </button>
+                                )}
+
+                                {tournament.status === "In Progress" && tournament.format !== "Free For All" && matches.length === 0 && (
+                                    <button
+                                        onClick={handleGenerateBracket}
+                                        disabled={isPending || participants.length < 2}
+                                        className="w-full py-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 font-bold text-sm transition-all disabled:opacity-40"
+                                    >
+                                        🛠 Generate Brackets
                                     </button>
                                 )}
 

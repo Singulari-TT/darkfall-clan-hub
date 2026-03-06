@@ -229,9 +229,19 @@ export default function GoalsPage() {
             <div className="max-w-[1500px] mx-auto space-y-8 relative z-10 flex flex-col lg:flex-row gap-8">
 
                 <div className="flex-1 space-y-8">
-                    {/* Header Strip */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-6 border-b border-white/10">
-                        <div>
+                    {/* Header Strip with Dragon Hero */}
+                    <div className="relative flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-12 pt-8 px-8 -mx-8 border-b border-white/10 overflow-hidden rounded-t-3xl mb-8">
+                        {/* Hero Background */}
+                        <div className="absolute inset-0 z-0">
+                            <img
+                                src="/images/city-dragon.jpg"
+                                alt="Dragon City"
+                                className="w-full h-full object-cover opacity-90 transition-all duration-700"
+                            />
+                            <div className="absolute inset-0 bg-black/40"></div>
+                        </div>
+
+                        <div className="relative z-10">
                             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
                                 Clan <span className="text-[#5865F2]">Directives</span>
                             </h1>
@@ -241,7 +251,7 @@ export default function GoalsPage() {
                         {isAdmin && (
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="w-full sm:w-auto bg-[#5865F2]/90 hover:bg-[#5865F2] text-white font-bold tracking-widest uppercase py-3 px-8 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.3)] transition-all hover:-translate-y-0.5 border border-[#5865F2]"
+                                className="relative z-10 w-full sm:w-auto bg-[#5865F2]/90 hover:bg-[#5865F2] text-white font-bold tracking-widest uppercase py-3 px-8 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.3)] transition-all hover:-translate-y-0.5 border border-[#5865F2]"
                             >
                                 Issue Directive
                             </button>

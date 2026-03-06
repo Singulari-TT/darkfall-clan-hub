@@ -3,6 +3,8 @@
 import { supabase } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import { revalidatePath } from "next/cache";
+import { sendDiscordNotification } from "@/lib/discordWebhook";
 
 // Helper to determine if the session user ID is a local UUID or a fallback Discord ID
 function getIdField(id: string) {
@@ -15,6 +17,8 @@ export interface CharacterItem {
     name: string;
     is_visible: boolean;
     admin_only: boolean;
+    is_main: boolean;
+    created_at: string;
 }
 
 export interface UserProfile {
@@ -115,7 +119,8 @@ export async function addCharacter(name: string, is_visible: boolean, admin_only
             user_id: userRecord.id,
             name,
             is_visible,
-            admin_only
+            admin_only,
+            is_main: false // Default to false, user can set as main after
         });
 
     if (error) {
@@ -149,4 +154,99 @@ export async function deleteCharacter(charId: string) {
         throw new Error("Failed to delete character");
     }
     return true;
+}
+
+export async function toggleMain(charId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
+
+    const userId = session.user.id;
+    const lookupField = getIdField(userId);
+
+    // Get the UUID
+    const { data: userRecord } = await supabase
+        .from("Users")
+        .select("id")
+        .eq(lookupField, userId)
+        .single();
+
+    if (!userRecord) throw new Error("Unauthorized");
+
+    // 1. Reset all characters for this user to NOT main
+    const { error: resetError } = await supabase
+        .from("Characters")
+        .update({ is_main: false })
+        .eq("user_id", userRecord.id);
+
+    if (resetError) throw new Error("Failed to reset main status");
+
+    // 2. Set the target character as main
+    const { error: updateError } = await supabase
+        .from("Characters")
+        .update({ is_main: true })
+        .eq("id", charId)
+        .eq("user_id", userRecord.id);
+
+    if (updateError) throw new Error("Failed to set new main status");
+
+    // 3. Announce to Discord
+    const { data: charData } = await supabase
+        .from("Characters")
+        .select("name")
+        .eq("id", charId)
+        .single();
+
+    const { data: userProfile } = await supabase
+        .from("Users")
+        .select("display_name")
+        .eq("id", userRecord.id)
+        .single();
+
+    if (charData && userProfile) {
+        await sendDiscordNotification(
+            `🛡️ **${userProfile.display_name || 'A Member'}** has officially verified their Primary Character: **${charData.name}**. Tactical Dossier updated.`,
+            false
+        );
+    }
+
+    revalidatePath("/profile");
+    revalidatePath("/directory");
+    return true;
+}
+
+export async function fetchAllMemberIdentities() {
+    const session = await getServerSession(authOptions);
+    if (!session) throw new Error("Unauthorized");
+
+    // Admin/Leader check
+    const { data: user } = await supabase
+        .from("Users")
+        .select("role")
+        .eq(getIdField(session.user.id), session.user.id)
+        .single();
+
+    if (!user || !['Admin', 'Leader', 'Officer'].includes(user.role)) {
+        throw new Error("Forbidden: Admin Access Required");
+    }
+
+    const { data, error } = await supabase
+        .from("Users")
+        .select(`
+            id,
+            discord_id,
+            display_name,
+            role,
+            created_at,
+            Characters (
+                id,
+                name,
+                is_main,
+                is_visible,
+                admin_only
+            )
+        `)
+        .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
 }

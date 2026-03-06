@@ -336,7 +336,7 @@ export default function InteractiveMap() {
                 {/* Active Presence */}
                 <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center justify-between">
-                        Connected Operatives
+                        Members Present
                         <span className="bg-[#5865F2]/20 text-[#5865F2] px-2 py-0.5 rounded-md border border-[#5865F2]/30 text-[10px]">{activeUsers.length}</span>
                     </h3>
                     <ul className="space-y-2">

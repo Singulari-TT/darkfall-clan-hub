@@ -79,7 +79,6 @@ export default function Navbar() {
                     {/* User Menu */}
                     <div className="flex items-center gap-5">
                         <div className="hidden md:flex flex-col items-end">
-                            <span className="text-[10px] text-gray-500 font-heading tracking-widest uppercase mb-0.5">Operative</span>
                             <span className="text-sm font-bold text-gray-100">{(session.user as any).displayName || session.user.name}</span>
                         </div>
                         <button

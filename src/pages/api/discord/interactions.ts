@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (!userRecord) {
                     return res.status(200).json({
                         type: 4,
-                        data: { content: "No Dreadkrew operative found for that user." }
+                        data: { content: "No Dreadkrew member found for that user." }
                     });
                 }
 
@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     type: 4,
                     data: {
                         embeds: [{
-                            title: `Operative: ${userRecord.display_name}`,
+                            title: `Member: ${userRecord.display_name}`,
                             description: `**Role:** ${userRecord.role}\n\n**Known Characters:**\n${charStr}`,
                             color: 0x8B0000
                         }]

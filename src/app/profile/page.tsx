@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UserProfile, fetchMyProfile, updateDisplayName, updateBio, addCharacter, deleteCharacter } from "./actions";
+import { UserProfile, fetchMyProfile, updateDisplayName, updateBio, addCharacter, deleteCharacter, toggleMain } from "./actions";
 import { useSession } from "next-auth/react";
 
 export default function ProfilePage() {
@@ -78,6 +78,12 @@ export default function ProfilePage() {
             ...profile,
             Characters: profile.Characters.filter(c => c.id !== id)
         });
+    };
+
+    const handleSetMain = async (id: string | null) => {
+        if (!id) return;
+        await toggleMain(id);
+        await loadProfile();
     };
 
     return (
@@ -185,16 +191,22 @@ export default function ProfilePage() {
                                     </div>
                                 ) : (
                                     profile.Characters.map(char => (
-                                        <div key={char.id} className="flex items-center justify-between bg-black/40 border border-red-900/20 rounded-lg p-4 hover:border-red-900/60 transition-colors group shadow-inner">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded bg-gradient-to-br from-red-950 to-black flex items-center justify-center border border-red-900/50 shadow-[inset_0_0_10px_rgba(139,0,0,0.3)]">
-                                                    <span className="text-2xl drop-shadow-md">🛡️</span>
+                                        <div key={char.id} className={`flex items-center justify-between bg-black/40 border ${char.is_main ? 'border-[#c5a059]/60 shadow-[0_0_15px_rgba(197,160,89,0.15)] scale-[1.01]' : 'border-red-900/20'} rounded-lg p-4 hover:border-red-900/60 transition-all group shadow-inner relative overflow-hidden`}>
+                                            {char.is_main && (
+                                                <div className="absolute top-0 right-0 w-24 h-24 bg-[#c5a059]/5 rounded-full blur-2xl -mr-12 -mt-12 pointer-events-none"></div>
+                                            )}
+                                            <div className="flex items-center gap-4 relative z-10">
+                                                <div className={`w-12 h-12 rounded ${char.is_main ? 'bg-gradient-to-br from-[#c5a059]/40 to-black border-[#c5a059]/60' : 'bg-gradient-to-br from-red-950 to-black border-red-900/50'} flex items-center justify-center border shadow-[inset_0_0_10px_rgba(139,0,0,0.3)]`}>
+                                                    <span className="text-2xl drop-shadow-md">{char.is_main ? '⭐' : '🛡️'}</span>
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-gray-200 text-lg font-heading tracking-wider">{char.name}</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className={`font-bold ${char.is_main ? 'text-[#c5a059]' : 'text-gray-200'} text-lg font-heading tracking-wider`}>{char.name}</h3>
+                                                        {char.is_main && <span className="text-[10px] bg-[#c5a059] text-black px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">MAIN</span>}
+                                                    </div>
                                                     <div className="flex gap-2 mt-1">
                                                         {char.is_visible ? (
-                                                            <span className="text-[9px] uppercase tracking-wider font-bold text-[#c5a059] border border-[#c5a059]/30 bg-[#c5a059]/5 px-1.5 py-0.5 rounded">Roster Vanguard</span>
+                                                            <span className="text-[9px] uppercase tracking-wider font-bold text-[#c5a059]/70 border border-[#c5a059]/20 bg-[#c5a059]/5 px-1.5 py-0.5 rounded">Roster Vanguard</span>
                                                         ) : (
                                                             <span className="text-[9px] uppercase tracking-wider font-bold text-gray-500 border border-stone-800 bg-stone-900/50 px-1.5 py-0.5 rounded">Concealed</span>
                                                         )}
@@ -204,13 +216,23 @@ export default function ProfilePage() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => handleDelete(char.id)}
-                                                className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-500 hover:bg-red-950/50 p-2 rounded transition-all border border-transparent hover:border-red-900/50"
-                                                title="Ostracize Character"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
+                                            <div className="flex items-center gap-2 relative z-10">
+                                                {!char.is_main && (
+                                                    <button
+                                                        onClick={() => handleSetMain(char.id)}
+                                                        className="opacity-0 group-hover:opacity-100 bg-[#c5a059]/10 hover:bg-[#c5a059]/20 text-[#c5a059] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded border border-[#c5a059]/30 transition-all"
+                                                    >
+                                                        Set as Main
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDelete(char.id)}
+                                                    className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-500 hover:bg-red-950/50 p-2 rounded transition-all border border-transparent hover:border-red-900/50"
+                                                    title="Ostracize Character"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     ))
                                 )}

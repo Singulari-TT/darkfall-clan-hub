@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 // Initialize the Google Gen AI Client
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function POST(req: Request) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+        }
+
         const { imageBase64 } = await req.json();
 
         if (!imageBase64) {
@@ -39,7 +46,7 @@ export async function POST(req: Request) {
         `;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-1.5-flash',
             contents: [
                 prompt,
                 {

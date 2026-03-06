@@ -25,6 +25,7 @@ export default function LootSplitter() {
     const [rawGold, setRawGold] = useState<number>(0);
     const [isScanning, setIsScanning] = useState(false);
     const [scanMessage, setScanMessage] = useState<string | null>(null);
+    const [partyNames, setPartyNames] = useState<string[]>(Array(15).fill("").map((_, i) => `Player ${i + 1}`));
 
     const addItem = () => setItems([...items, { id: Math.random().toString(), name: '', quantity: 1, valuePerUnit: 0 }]);
     const removeItem = (id: string) => setItems(items.filter(i => i.id !== id));
@@ -36,6 +37,12 @@ export default function LootSplitter() {
             newRolls.push({ playerId: i, roll: Math.floor(Math.random() * 100) + 1 });
         }
         updateItem(itemId, 'rolls', newRolls);
+    };
+
+    const updatePartyName = (index: number, name: string) => {
+        const newNames = [...partyNames];
+        newNames[index] = name;
+        setPartyNames(newNames);
     };
 
     const handlePaste = async (e: React.ClipboardEvent) => {
@@ -148,12 +155,29 @@ export default function LootSplitter() {
                                     <span className="text-[#5865F2]">👥</span> Party Configuration
                                 </h2>
                             </div>
-                            <div className="flex bg-black/40 border border-white/10 rounded-xl p-4 items-center justify-between">
+                            <div className="flex bg-black/40 border border-white/10 rounded-xl p-4 items-center justify-between mb-6">
                                 <span className="text-gray-400 font-bold uppercase tracking-wider text-sm">Total Party Members:</span>
                                 <div className="flex items-center gap-4">
                                     <button onClick={() => setPartySize(Math.max(1, partySize - 1))} className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xl font-bold flex items-center justify-center transition-all">-</button>
                                     <span className="text-3xl font-black text-white w-12 text-center">{partySize}</span>
-                                    <button onClick={() => setPartySize(partySize + 1)} className="w-10 h-10 rounded-lg bg-[#5865F2]/20 hover:bg-[#5865F2]/40 border border-[#5865F2]/30 text-[#5865F2] hover:text-white text-xl font-bold flex items-center justify-center transition-all">+</button>
+                                    <button onClick={() => setPartySize(Math.min(15, partySize + 1))} className="w-10 h-10 rounded-lg bg-[#5865F2]/20 hover:bg-[#5865F2]/40 border border-[#5865F2]/30 text-[#5865F2] hover:text-white text-xl font-bold flex items-center justify-center transition-all">+</button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Party Roster (Optional Names)</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                    {Array.from({ length: partySize }).map((_, i) => (
+                                        <div key={i} className="space-y-1">
+                                            <label className="text-[9px] text-gray-600 font-bold uppercase block px-1">P{i + 1}</label>
+                                            <input
+                                                type="text"
+                                                value={partyNames[i]}
+                                                onChange={(e) => updatePartyName(i, e.target.value)}
+                                                className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-white outline-none focus:border-[#5865F2]/50 transition-colors"
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -309,8 +333,8 @@ export default function LootSplitter() {
                                                 {item.rolls && item.rolls.length > 0 && (
                                                     <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/5">
                                                         {item.rolls.map(r => (
-                                                            <div key={r.playerId} className={`text-xs px-2 py-1 flex items-center gap-1 font-mono rounded ${r.roll === maxRoll ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold' : 'bg-white/5 text-gray-400 border border-white/10'}`}>
-                                                                <span className="opacity-50">P{r.playerId}:</span> {r.roll}
+                                                            <div key={r.playerId} className={`text-[10px] px-2 py-1 flex items-center gap-1 font-mono rounded ${r.roll === maxRoll ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold' : 'bg-white/5 text-gray-500 border border-white/10'}`}>
+                                                                <span className="opacity-50">{(partyNames[r.playerId - 1] || `P${r.playerId}`).split(' ')[0]}:</span> {r.roll}
                                                                 {r.roll === maxRoll && <span className="text-[10px]">⭐</span>}
                                                             </div>
                                                         ))}

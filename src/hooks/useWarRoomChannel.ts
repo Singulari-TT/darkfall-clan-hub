@@ -90,7 +90,7 @@ export function useWarRoomChannel(initialMarkers: MapMarker[] = []) {
                 // Once subscribed, track this user's presence
                 await room.track({
                     userId: session.user.id,
-                    name: (session.user as any).displayName || session.user.name || 'Operative',
+                    name: (session.user as any).displayName || session.user.name || 'Member',
                     online_at: new Date().toISOString(),
                 });
             }
