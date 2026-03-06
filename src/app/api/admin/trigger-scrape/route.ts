@@ -67,7 +67,15 @@ async function runOnlineStatus(db: any): Promise<{ processed: number; note: stri
 
     // Count online member tags
     const matches = xml.match(/<OnlineRecord>/g);
-    return { processed: matches?.length ?? 0, note: `Found ${matches?.length ?? 0} online records in news reel` };
+    const count = matches?.length ?? 0;
+
+    // Update the SystemConfig table so the dashboard reflects this
+    await db.from("SystemConfig").upsert({
+        key: "members_logged_in",
+        value: count.toString()
+    }, { onConflict: "key" });
+
+    return { processed: count, note: `Found ${count} online records. Database updated.` };
 }
 
 async function runHarvestSync(db: any): Promise<{ processed: number; note: string }> {

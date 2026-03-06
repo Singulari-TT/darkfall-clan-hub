@@ -11,6 +11,7 @@ export default function Home() {
   const [greeting, setGreeting] = useState("Welcome");
   const [goalsStats, setGoalsStats] = useState({ total: 0, completed: 0 });
   const [onlineCount, setOnlineCount] = useState(0);
+  const [lastSync, setLastSync] = useState<string | null>(null);
   const [activeGoals, setActiveGoals] = useState<ClanGoal[]>([]);
   const [featuredProject, setFeaturedProjectState] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -26,10 +27,12 @@ export default function Home() {
     // Fetch goals for the progress bar
     const loadDashboardData = async () => {
       try {
-        const [data, projectData, onlineData] = await Promise.all([
+        const [data, projectData, onlineData, syncData] = await Promise.all([
           fetchClanGoals(),
           getFeaturedProject(),
-          getOnlineCount()
+          getOnlineCount(),
+          // Import getLastSyncTime from roster actions
+          import("./roster/actions").then(m => m.getLastSyncTime())
         ]);
 
         const featured = projectData?.featuredProject || null;
@@ -44,6 +47,7 @@ export default function Home() {
         const completed = relevantGoals.filter((g: ClanGoal) => g.status === 'Completed').length;
         setGoalsStats({ total: relevantGoals.length, completed });
         setOnlineCount(onlineData);
+        setLastSync(syncData);
       } catch (e) {
         console.error("Failed to fetch dashboard stats");
       }
@@ -111,14 +115,19 @@ export default function Home() {
               </div>
             </Link>
 
-            <Link href="/directory" className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 hover:border-[#5865F2]/50 hover:-translate-y-1 transition-all group cursor-pointer duration-300">
+            <Link href="/tavern" className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 hover:border-[#5865F2]/50 hover:-translate-y-1 transition-all group cursor-pointer duration-300">
               <div className="w-12 h-12 rounded-xl bg-[#5865F2]/20 flex items-center justify-center border border-[#5865F2]/30 relative shadow-[0_0_15px_rgba(88,101,242,0.2)]">
                 <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0D1117] group-hover:border-[#5865F2]/50 animate-[pulse_2s_infinite]"></div>
                 <svg className="w-6 h-6 text-[#5865F2] drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
               </div>
               <div className="pr-2">
                 <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-0.5">Members Logged In</p>
-                <p className="text-2xl font-bold text-white leading-none">{onlineCount}</p>
+                <p className="text-2xl font-bold text-white leading-none mb-1">{onlineCount}</p>
+                {lastSync && (
+                  <p className="text-[9px] text-gray-500 font-mono uppercase tracking-tighter">
+                    Last Update: {new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                )}
               </div>
             </Link>
           </div>
