@@ -3,6 +3,7 @@
 import { useState } from "react";
 import InteractiveMap from "@/components/InteractiveMap";
 import WarRoomIntro from "@/components/WarRoomIntro";
+import NativeIntelligenceFeed from "@/components/NativeIntelligenceFeed";
 
 type WarRoomTab = "map" | "ganks" | "bans" | "heatmap";
 
@@ -36,8 +37,8 @@ export default function WarRoomPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 border ${activeTab === tab.id
-                                            ? "bg-[#5865F2]/20 text-[#5865F2] border-[#5865F2]/40 shadow-[0_0_15px_rgba(88,101,242,0.2)]"
-                                            : "text-gray-500 border-transparent hover:text-gray-300 hover:bg-white/5"
+                                        ? "bg-[#5865F2]/20 text-[#5865F2] border-[#5865F2]/40 shadow-[0_0_15px_rgba(88,101,242,0.2)]"
+                                        : "text-gray-500 border-transparent hover:text-gray-300 hover:bg-white/5"
                                         }`}
                                 >
                                     <span>{tab.icon}</span>
@@ -57,22 +58,44 @@ export default function WarRoomPage() {
                 {/* Content Area */}
                 <main className="flex-1 relative bg-black/20">
                     {activeTab === "map" && (
-                        <div className="absolute inset-0 p-4">
-                            <div className="h-full bg-transparent rounded-2xl relative overflow-hidden border border-white/5 shadow-2xl">
+                        <div className="absolute inset-0 p-8 flex items-center justify-center">
+                            <div className="w-full h-full max-w-[75%] mx-auto bg-transparent rounded-2xl relative overflow-hidden border border-white/10 shadow-3xl">
                                 <InteractiveMap />
+                                {/* Tactical Overlays */}
+                                <div className="absolute top-4 left-4 z-40 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-tighter text-blue-400">
+                                    GRID_ALPHA_V1 / LIVE_COORD_TRACKING
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {(activeTab === "ganks" || activeTab === "bans" || activeTab === "heatmap") && (
-                        <div className="absolute inset-0 bg-[#0a0f18]">
-                            <iframe
-                                src={tabs.find(t => t.id === activeTab)?.url}
-                                className="w-full h-full border-none grayscale-[30%] brightness-[85%] contrast-[110%] group-hover:grayscale-0 transition-all duration-700"
-                                title={activeTab}
-                            />
-                            {/* Overlay to blend the iframe a bit more - optional */}
-                            <div className="absolute inset-0 pointer-events-none border-t border-white/10 shadow-[inset_0_20px_40px_rgba(0,0,0,0.8)]"></div>
+                    {(activeTab === "ganks" || activeTab === "bans") && (
+                        <div className="absolute inset-0 bg-[#0a0f18] flex items-center justify-center p-8">
+                            <div className="w-full h-full max-w-[85%] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden">
+                                <NativeIntelligenceFeed type={activeTab} />
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === "heatmap" && (
+                        <div className="absolute inset-0 bg-[#0a0f18] flex flex-col items-center justify-center p-8 text-center">
+                            <div className="max-w-2xl mb-8">
+                                <h2 className="text-3xl font-black text-white tracking-[0.2em] uppercase mb-4">Tactical HeatMap</h2>
+                                <p className="text-sm text-gray-500 font-mono">External security protocols (X-Frame-Options) prevent direct terminal rendering of the HeatMap. Access via secure external uplink below.</p>
+                            </div>
+
+                            <a
+                                href="https://www.riseofagon.com/agonmetrics/pvp/heatmap/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group relative px-10 py-4 bg-red-500/10 border border-red-500/50 hover:bg-red-500 hover:text-white transition-all duration-500 rounded-xl overflow-hidden"
+                            >
+                                <div className="absolute inset-0 bg-red-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                                <span className="relative z-10 font-black tracking-[0.3em] uppercase">Establish Direct Uplink</span>
+                            </a>
+
+                            <div className="mt-12 w-full max-w-md h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                            <p className="mt-8 text-[10px] text-gray-700 uppercase tracking-widest italic">Note: Neural interface currently restricted to browser-native view.</p>
                         </div>
                     )}
                 </main>

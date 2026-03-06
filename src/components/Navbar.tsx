@@ -23,9 +23,10 @@ export default function Navbar() {
     const userRole = session?.user?.role || 'Member';
 
     const navItems = [
-        { label: "Command", href: "/", icon: "🏰" },
-        { label: "Roster", href: "/directory", icon: "🛡️" },
-        { label: "War Room", href: "/map", icon: "🗺️" },
+        { label: "Command", href: "/", icon: "📡" },
+        { label: "Roster", href: "/directory", icon: "👤" },
+        { label: "War Room", href: "/map", icon: "🛰️" },
+        { label: "Empire", href: "/empire", icon: "🏰" },
         { label: "Bank Market", href: "/bank-market", icon: "⚖️" },
         { label: "Loot Splitter", href: "/loot-splitter", icon: "🪓" },
         { label: "Media", href: "/media", icon: "📺" },

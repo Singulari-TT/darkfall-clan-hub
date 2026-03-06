@@ -2,7 +2,29 @@
 > **Rule Requirement:** Every time an AI Agent finishes a significant coding session, feature addition, or architectural change, they MUST append a summary to the top of this file. 
 > **Purpose:** This prevents isolated context between different agent instances and ensures any agent acting on this codebase immediately understands the current state of the architecture, authentication methods, and database schemas.
 
-## [2026-03-05] Tournament Brackets & Match Management
+## [2026-03-06] Empire Hub & War Room Optimization
+- **Agent Focus:** Territorial Intelligence & Resource Logistics
+- **Changes Made:**
+  - **Empire Dashboard**: Created a new "Empire" module (`/empire`) for tracking clan holdings (Cities/Hamlets). Includes tactical cards and estimated resource yield tracking (Timber, Ore, Stone, Resin).
+  - **War Room Scaling**: Reduced the Tactical Map footprint by 30% and added immersive overlays (GRID_ALPHA_V1) for a more professional command feel.
+  - **Native Intelligence Feeds**: Replaced blocked iframes for Ganks and Bans with native scraping API routes (`/api/agon/ganks`, `/api/agon/bans`) and a custom `NativeIntelligenceFeed` component.
+  - **Harvest Scraper**: Created `scripts/scrape_harvests.js` to parse News Reel milestone events (1st, 10th, 20th...) for imperial resource estimation.
+  - **Navbar Refinement**: Integrated "Empire" into the global navigation and updated system icons to a more tactical "Satellite/Radar" aesthetic (📡, 👤, 🛰️, 🏰).
+- **SQL Requirement**: Run `src/database/empire-schema.sql` to initialize imperial tracking tables.
+- **Pending**: Actual yield numbers for Mines and Quarries from user.
+
+- **Agent Focus:** Hardcore Tactical Utility & Personalization
+- **Changes Made:**
+  - **War Room Terminal**: Overhauled the Tactical Map into a multi-tab "War Room" hub. Integrated live **Gank Feeds**, **Ban Watch**, and **Agon Metrics HeatMap** via iframe relays. Centralized all Agon intelligence for rapid-access command.
+  - **Identity Codex**: Implemented character registration with "Main" character designation. Created Admin Identity dashboard (`/admin/identities`) for comprehensive roster management.
+  - **Roster Evolution**: Refined the Member Directory with compact "Command Center" styling. Added direct **PvP Intel** links to Agon Metrics profiles for all verified Main characters.
+  - **Terminology Purge**: Replaced generic "Operative" terminology with personalized names or "Member" across all views, hooks, and Discord interaction handlers.
+  - **Loot Splitter V2**: Upgraded AI identification to `gemini-1.5-flash` and implemented "Party Roster" for dynamic 15-member dice rolls with player names.
+  - **Tournament ID Sync**: Standardized ID handling between Discord and local Supabase UUIDs to fix creation/registration errors.
+  - **Aesthetics**: Integrated "Dragon City" premium background for Directives and tightened UI density (font/padding) for a more professional tactical feel.
+- **SQL Requirement:** Added `is_main` column to `Characters` table and created Admin view permissions.
+- **Pending:** Integration of "Last Seen" metrics from News Reel scraping into the Identity cards.
+
 - **Agent Focus:** Feature Enhancement — Automated Tournament Match System
 - **Changes Made:**
   - Added `Tournament_Matches` table to track single-elimination rounds and progression.
