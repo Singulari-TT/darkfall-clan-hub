@@ -29,3 +29,20 @@ export async function getLastSyncTime() {
 
     return data?.updated_at || null;
 }
+
+export async function getOnlineMembers() {
+    noStore();
+    // Fetch characters who are currently online
+    const { data, error } = await supabase
+        .from('Characters')
+        .select('name')
+        .eq('is_online', true)
+        .eq('is_main', true);
+
+    if (error) {
+        console.error("Error fetching online members:", error);
+        return [];
+    }
+
+    return data?.map(c => c.name) || [];
+}

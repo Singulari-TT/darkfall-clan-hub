@@ -4,7 +4,8 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchClanGoals, ClanGoal, getFeaturedProject, setFeaturedProject } from "./goals/actions";
-import { getOnlineCount } from "./roster/actions";
+import { getOnlineCount, getLastSyncTime, getOnlineMembers } from "./roster/actions";
+import { ChevronDown, ChevronUp, User, LayoutDashboard, Search, LogOut } from "lucide-react";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -17,6 +18,8 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
+  const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -27,12 +30,12 @@ export default function Home() {
     // Fetch goals for the progress bar
     const loadDashboardData = async () => {
       try {
-        const [data, projectData, onlineData, syncData] = await Promise.all([
+        const [data, projectData, onlineData, syncData, onlineDataMembers] = await Promise.all([
           fetchClanGoals(),
           getFeaturedProject(),
           getOnlineCount(),
-          // Import getLastSyncTime from roster actions
-          import("./roster/actions").then(m => m.getLastSyncTime())
+          getLastSyncTime(),
+          getOnlineMembers()
         ]);
 
         const featured = projectData?.featuredProject || null;
@@ -48,6 +51,7 @@ export default function Home() {
         setGoalsStats({ total: relevantGoals.length, completed });
         setOnlineCount(onlineData);
         setLastSync(syncData);
+        setOnlineMembers(onlineDataMembers);
       } catch (e) {
         console.error("Failed to fetch dashboard stats");
       }
@@ -115,21 +119,53 @@ export default function Home() {
               </div>
             </Link>
 
-            <Link href="/tavern" className="bg-surface border border-surface-border rounded-card p-4 flex items-center gap-4 backdrop-blur-[--blur-glass] shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-surface-hover hover:border-social-cobalt-border hover:-translate-y-1 transition-all group cursor-pointer duration-300">
-              <div className="w-12 h-12 rounded-xl bg-social-cobalt-dim flex items-center justify-center border border-social-cobalt-border relative shadow-[0_0_15px_rgba(88,101,242,0.2)]">
-                <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background group-hover:border-social-cobalt-border animate-[pulse_2s_infinite]"></div>
-                <svg className="w-6 h-6 text-social-cobalt drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            <div
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="bg-surface border border-surface-border rounded-card p-4 flex flex-col backdrop-blur-[--blur-glass] shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-surface-hover hover:border-social-cobalt-border transition-all group cursor-pointer duration-300 min-w-[200px]"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-social-cobalt-dim flex items-center justify-center border border-social-cobalt-border relative shadow-[0_0_15px_rgba(88,101,242,0.2)]">
+                  <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background group-hover:border-social-cobalt-border animate-[pulse_2s_infinite]"></div>
+                  <User className="w-6 h-6 text-social-cobalt drop-shadow-md" />
+                </div>
+                <div className="flex-1 pr-2">
+                  <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-0.5">Members Logged In</p>
+                  <p className="text-2xl font-bold text-white leading-none mb-1">{onlineCount}</p>
+                  {lastSync && (
+                    <p className="text-[9px] text-gray-500 font-mono uppercase tracking-tighter">
+                      Last Update: {new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  )}
+                </div>
+                <div className="ml-auto text-gray-600">
+                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
-              <div className="pr-2">
-                <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-0.5">Members Logged In</p>
-                <p className="text-2xl font-bold text-white leading-none mb-1">{onlineCount}</p>
-                {lastSync && (
-                  <p className="text-[9px] text-gray-500 font-mono uppercase tracking-tighter">
-                    Last Update: {new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                )}
-              </div>
-            </Link>
+
+              {isExpanded && (
+                <div className="mt-4 pt-4 border-t border-white/5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {onlineMembers.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-1">
+                      {onlineMembers.map((name, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] text-gray-400 font-medium py-1 px-2 rounded hover:bg-white/5 hover:text-white transition-colors">
+                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                          {name}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-gray-600 italic text-center py-2">No active sessions detected.</p>
+                  )}
+                  <Link
+                    href="/tavern"
+                    className="block text-center text-[10px] text-social-cobalt font-bold uppercase tracking-widest hover:underline pt-2 border-t border-white/5 mt-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    View Roster Hub
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
