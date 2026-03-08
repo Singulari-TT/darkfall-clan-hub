@@ -8,6 +8,11 @@ function sha1Upper(text: string) {
     return crypto.createHash("sha1").update(text).digest("hex").toUpperCase();
 }
 
+function safeMatch(text: string, regex: RegExp, index: number = 1): string | null {
+    const match = text.match(regex);
+    return match ? match[index] : null;
+}
+
 const LZW_decompress = (compressed: string[]): string => {
     if (!compressed || compressed.length === 0 || (compressed.length === 1 && !compressed[0])) return "";
 
@@ -48,26 +53,24 @@ async function authenticate() {
     });
     const text1 = await resp1.text();
 
-    const rckMatch = text1.match(/<RCK>(.*?)<\/RCK>/);
-    const wbgMatch = text1.match(/<WebGateRequest>(.*?)<\/WebGateRequest>/);
+    const rck = safeMatch(text1, /<RCK>(.*?)<\/RCK>/);
+    const wbg = safeMatch(text1, /<WebGateRequest>(.*?)<\/WebGateRequest>/);
 
-    if (!rckMatch || !wbgMatch) {
-        throw new Error(`WebGate Init Failed. Response: ${text1.substring(0, 100)}...`);
+    if (!rck || !wbg) {
+        throw new Error(`WebGate Init Failed. RCK=${!!rck}, WBG=${!!wbg}. Body: ${text1.substring(0, 100)}`);
     }
 
-    const rck = rckMatch[1];
-    const wbg = wbgMatch[1];
     const hpass = sha1Upper(sha1Upper(password) + rck);
 
     const resp2 = await fetch(`${baseUrl}?WebGateRequest=${wbg}&Password=${hpass}&UserName=${username}&RequestOwner=EXTBRM`);
     const text2 = await resp2.text();
 
-    const sessionMatch = text2.match(/<SessionKey>(.*?)<\/SessionKey>/);
-    if (!sessionMatch) {
-        throw new Error(`WebGate Auth Failed (SessionKey missing). Response: ${text2.substring(0, 100)}...`);
+    const sessionKey = safeMatch(text2, /<SessionKey>(.*?)<\/SessionKey>/);
+    if (!sessionKey) {
+        throw new Error(`WebGate Auth Failed. Body: ${text2.substring(0, 100)}`);
     }
 
-    return sessionMatch[1];
+    return sessionKey;
 }
 
 async function fetchNewsXml(sessionKey: string): Promise<string | null> {
@@ -78,9 +81,9 @@ async function fetchNewsXml(sessionKey: string): Promise<string | null> {
         body: new URLSearchParams({ ClanID: "104" }),
     });
     const text = await resp.text();
-    const match = text.match(/<Data>(.*?)<\/Data>/);
-    if (!match) return null;
-    return LZW_decompress(match[1].split(","));
+    const data = safeMatch(text, /<Data>(.*?)<\/Data>/);
+    if (!data) return null;
+    return LZW_decompress(data.split(","));
 }
 
 async function runOnlineStatus(db: any): Promise<{ processed: number; note: string }> {
@@ -201,9 +204,8 @@ async function runHoldingsSync(db: any): Promise<{ processed: number; note: stri
 
     let totalUpdated = 0;
     for (const hMatch of holdingIDs) {
-        const idMatch = hMatch.match(/<HoldingID>(.*?)<\/HoldingID>/);
-        if (!idMatch) continue;
-        const hId = idMatch[1];
+        const hId = safeMatch(hMatch, /<HoldingID>(.*?)<\/HoldingID>/);
+        if (!hId) continue;
 
         // 2. Request Individual Holding Detail
         const respDetail = await fetch(`${baseUrl}?SessionKey=${sessionKey}&WebGateRequest=103&RequestOwner=QETUO`, {

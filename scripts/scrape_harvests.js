@@ -34,8 +34,11 @@ const LZW = {
     }
 };
 
-function sha1_upper(text) {
-    return crypto.createHash('sha1').update(text).digest('hex').toUpperCase();
+const sha1_upper = (text) => crypto.createHash('sha1').update(text).digest('hex').toUpperCase();
+
+function safeMatch(text, regex, index = 1) {
+    const match = text.match(regex);
+    return match ? match[index] : null;
 }
 
 async function scrapeHarvests() {
@@ -44,20 +47,27 @@ async function scrapeHarvests() {
 
     try {
         console.log("Authenticating for Harvest Scraping...");
-        // 1. Get Salt
         const resp1 = await fetch(`${baseUrl}?WebGateRequest=1&RequestOwner=EXTBRM`, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({ UserName: username, RequestOwner: "EXTBRM" })
         });
         const text1 = await resp1.text();
-        const rck = text1.match(/<RCK>(.*?)<\/RCK>/)[1];
-        const wbg = text1.match(/<WebGateRequest>(.*?)<\/WebGateRequest>/)[1];
+        const rck = safeMatch(text1, /<RCK>(.*?)<\/RCK>/);
+        const wbg = safeMatch(text1, /<WebGateRequest>(.*?)<\/WebGateRequest>/);
 
-        // 2. Session Key
+        if (!rck || !wbg) {
+            throw new Error(`Authentication loop failure: RCK=${!!rck}, WBG=${!!wbg}`);
+        }
+
         const hpass = sha1_upper(sha1_upper(password) + rck);
         const resp2 = await fetch(`${baseUrl}?WebGateRequest=${wbg}&Password=${hpass}&UserName=${username}&RequestOwner=EXTBRM`);
-        const sessionKey = (await resp2.text()).match(/<SessionKey>(.*?)<\/SessionKey>/)[1];
+        const text2 = await resp2.text();
+        const sessionKey = safeMatch(text2, /<SessionKey>(.*?)<\/SessionKey>/);
+
+        if (!sessionKey) {
+            throw new Error("Failed to secure SessionKey from WebGate.");
+        }
 
         // 3. Fetch News Reel
         console.log("Fetching News Reel for Empire Logs...");

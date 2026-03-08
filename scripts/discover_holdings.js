@@ -31,8 +31,11 @@ const LZW = {
     }
 };
 
-function sha1_upper(text) {
-    return crypto.createHash('sha1').update(text).digest('hex').toUpperCase();
+const sha1_upper = (text) => crypto.createHash('sha1').update(text).digest('hex').toUpperCase();
+
+function safeMatch(text, regex, index = 1) {
+    const match = text.match(regex);
+    return match ? match[index] : null;
 }
 
 async function discoverHoldings() {
@@ -40,23 +43,18 @@ async function discoverHoldings() {
 
     try {
         console.log("Authenticating with WebGate...");
-        // 1. Get Salt
         const resp1 = await fetch(`${baseUrl}?WebGateRequest=1&RequestOwner=EXTBRM`, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({ UserName: username, RequestOwner: "EXTBRM" })
         });
         const text1 = await resp1.text();
-        console.log("Response 1:", text1);
-        const rckMatch = text1.match(/<RCK>(.*?)<\/RCK>/);
-        const wbgMatch = text1.match(/<WebGateRequest>(.*?)<\/WebGateRequest>/);
+        const rck = safeMatch(text1, /<RCK>(.*?)<\/RCK>/);
+        const wbg = safeMatch(text1, /<WebGateRequest>(.*?)<\/WebGateRequest>/);
 
-        if (!rckMatch || !wbgMatch) {
-            throw new Error("Failed to extract RCK or WebGateRequest from Response 1");
+        if (!rck || !wbg) {
+            throw new Error(`Auth failed (Response 1): RCK=${!!rck}, WBG=${!!wbg}`);
         }
-
-        const rck = rckMatch[1];
-        const wbg = wbgMatch[1];
 
         // 2. Session Key
         const hpass = sha1_upper(sha1_upper(password) + rck);
@@ -93,9 +91,11 @@ async function discoverHoldings() {
             if (cityMatches) {
                 console.log("\n--- DETECTED HOLDINGS ---");
                 cityMatches.forEach(m => {
-                    const name = m.match(/<Name>(.*?)<\/Name>/)[1];
-                    const type = m.match(/<Type>(.*?)<\/Type>/)[1];
-                    console.log(`[${type}] ${name}`);
+                    const name = safeMatch(m, /<Name>(.*?)<\/Name>/);
+                    const type = safeMatch(m, /<Type>(.*?)<\/Type>/);
+                    if (name && type) {
+                        console.log(`[${type}] ${name}`);
+                    }
                 });
             }
         } else {
