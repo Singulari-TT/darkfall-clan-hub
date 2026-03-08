@@ -18,6 +18,45 @@ interface Holding {
     }[];
 }
 
+const MANUAL_HOLDINGS: Holding[] = [
+    {
+        id: 'manual-kryzerok',
+        name: 'Kryzerok',
+        type: 'City',
+        image_url: '/images/city-dragon.jpg',
+        nodes: [
+            { type: 'Timber Grove', totalHits: 50, estimatedYields: { 'Timber': 150, 'Resin': 100 } },
+            { type: 'Mine', totalHits: 30, estimatedYields: { 'Iron Ore': 90, 'Coal': 60 } }
+        ]
+    },
+    {
+        id: 'manual-aradoth',
+        name: 'Aradoth',
+        type: 'City',
+        nodes: [
+            { type: 'Quarry', totalHits: 40, estimatedYields: { 'Stone': 120, 'Sulfur': 8 } },
+            { type: 'Timber Grove', totalHits: 25, estimatedYields: { 'Timber': 75, 'Resin': 50 } }
+        ]
+    },
+    {
+        id: 'manual-ul-hamra',
+        name: "Ul'Hamra",
+        type: 'City',
+        nodes: [
+            { type: 'Mine', totalHits: 60, estimatedYields: { 'Iron Ore': 180, 'Coal': 120, 'Gold': 1 } },
+            { type: 'Quarry', totalHits: 20, estimatedYields: { 'Stone': 60, 'Sulfur': 4 } }
+        ]
+    },
+    {
+        id: 'manual-izkhand',
+        name: 'Izkhand',
+        type: 'Hamlet',
+        nodes: [
+            { type: 'Timber Grove', totalHits: 15, estimatedYields: { 'Timber': 45, 'Resin': 30 } }
+        ]
+    }
+];
+
 export default function EmpirePage() {
     const { data: session } = useSession();
     // @ts-ignore
@@ -85,7 +124,7 @@ export default function EmpirePage() {
                 };
             });
 
-            setHoldings(formattedHoldings);
+            setHoldings([...MANUAL_HOLDINGS, ...formattedHoldings]);
         } catch (err) {
             console.error("Failed to load empire data:", err);
         } finally {

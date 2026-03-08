@@ -242,7 +242,7 @@ export default function InteractiveMap() {
                             { id: 'attack', icon: '⚔', label: 'Attack', color: 'hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-gray-400', active: 'bg-rose-500/20 text-rose-400 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]' },
                             { id: 'defend', icon: '🛡', label: 'Defend', color: 'hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 text-gray-400', active: 'bg-blue-500/20 text-blue-400 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]' },
                             { id: 'rally', icon: '★', label: 'Rally', color: 'hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 text-gray-400', active: 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]' },
-                            { id: 'draw', icon: '✎', label: 'Whiteboard', color: 'hover:bg-fuchsia-500/10 hover:text-fuchsia-400 hover:border-fuchsia-500/30 text-gray-400', active: 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.2)]' }
+                            { id: 'draw', icon: '✎', label: 'Draw on Map', color: 'hover:bg-fuchsia-500/10 hover:text-fuchsia-400 hover:border-fuchsia-500/30 text-gray-400', active: 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.2)]' }
                         ].map(tool => (
                             <button
                                 key={tool.id}
@@ -297,58 +297,38 @@ export default function InteractiveMap() {
                     )}
                 </div>
 
-                {/* Custom Icons Palette */}
-                <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
-                    <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Asset Markers</h3>
-                        <button
-                            onClick={() => setShowIconPalette(!showIconPalette)}
-                            className="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[10px] px-2 py-1 rounded-md transition-colors font-bold uppercase tracking-widest"
-                        >
-                            {showIconPalette ? 'Hide' : 'Show All'}
-                        </button>
-                    </div>
-
-                    <div className={`grid grid-cols-4 gap-2 ${showIconPalette ? 'max-h-[300px]' : 'max-h-[100px]'} overflow-y-auto custom-scrollbar pr-1`}>
-                        {availableIcons.length === 0 ? (
-                            <div className="col-span-4 text-xs text-gray-500 font-mono text-center py-2">Loading assets...</div>
-                        ) : (
-                            availableIcons.map(icon => {
-                                const toolId = `icon://${icon}`;
-                                const isActive = selectedTool === toolId;
-                                return (
-                                    <button
-                                        key={icon}
-                                        onClick={() => setSelectedTool(isActive ? null : toolId)}
-                                        title={icon}
-                                        className={`relative aspect-square rounded-xl border flex items-center justify-center p-1.5 transition-all
-                                            ${isActive ? 'bg-[#5865F2]/20 border-[#5865F2] shadow-[0_0_15px_rgba(88,101,242,0.3)]' : 'bg-white/5 border-white/10 hover:border-white/30'}`}
-                                    >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={`/images/icons/${icon}`} alt="icon" className="w-full h-full object-contain filter drop-shadow-md" />
-                                    </button>
-                                )
-                            })
-                        )}
-                    </div>
-                </div>
+                {/* Asset Markers Palette Removed per User Request */}
 
                 {/* Active Presence */}
                 <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center justify-between">
-                        Members Present
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
+                        Tactical Presence
                         <span className="bg-[#5865F2]/20 text-[#5865F2] px-2 py-0.5 rounded-md border border-[#5865F2]/30 text-[10px]">{activeUsers.length}</span>
                     </h3>
-                    <ul className="space-y-2">
+                    <div className="flex flex-wrap gap-3">
                         {activeUsers.map(user => (
-                            <li key={user.userId} className="flex items-center gap-3 text-sm text-gray-200 bg-white/5 p-2.5 rounded-xl border border-white/10">
-                                <span className="w-2.5 h-2.5 rounded-full bg-[#5865F2] shadow-[0_0_8px_rgba(88,101,242,0.8)] animate-pulse"></span>
-                                <span className="font-bold">{user.name}</span>
-                                <span className="text-[10px] text-gray-400 font-mono ml-auto tracking-widest">Active</span>
-                            </li>
+                            <div key={user.userId} className="relative group/user">
+                                {user.image ? (
+                                    <img
+                                        src={user.image}
+                                        alt={user.name}
+                                        className="w-10 h-10 rounded-full border-2 border-[#5865F2]/50 shadow-[0_0_10px_rgba(88,101,242,0.3)] group-hover/user:scale-110 transition-transform cursor-help"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full border-2 border-gray-700 bg-gray-900 flex items-center justify-center text-xs font-bold text-gray-500 group-hover/user:scale-110 transition-transform cursor-help">
+                                        {user.name.charAt(0)}
+                                    </div>
+                                )}
+                                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full animate-pulse shadow-sm" />
+
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 border border-white/10 rounded text-[9px] font-bold text-white uppercase tracking-widest whitespace-nowrap opacity-0 group-hover/user:opacity-100 transition-opacity pointer-events-none z-50">
+                                    {user.name}
+                                </div>
+                            </div>
                         ))}
-                        {activeUsers.length === 0 && <li className="text-gray-500 font-mono text-xs text-center py-2">Solo mission</li>}
-                    </ul>
+                        {activeUsers.length === 0 && <div className="text-gray-600 font-mono text-[10px] uppercase tracking-widest w-full text-center py-2">Solo mission</div>}
+                    </div>
                 </div>
             </div>
 

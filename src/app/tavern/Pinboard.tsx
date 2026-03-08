@@ -42,7 +42,7 @@ export function Pinboard({ initialPosts, currentUserId, isAdmin }: {
             id: `temp-${Date.now()}`,
             author_discord_id: currentUserId,
             author_name: "You",
-            message: draft.trim(),
+            content: draft.trim(),
             color,
             created_at: new Date().toISOString(),
         };
@@ -138,7 +138,7 @@ export function Pinboard({ initialPosts, currentUserId, isAdmin }: {
                                 <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full ${c.pin} shadow-md border-2 border-black/20`} />
 
                                 <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words pt-1">
-                                    {post.message}
+                                    {post.content}
                                 </p>
 
                                 <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">

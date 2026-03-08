@@ -16,6 +16,7 @@ export type MapMarker = {
 export type PresentUser = {
     userId: string;
     name: string;
+    image?: string;
     cursor?: { x: number; y: number };
 };
 
@@ -51,6 +52,7 @@ export function useWarRoomChannel(initialMarkers: MapMarker[] = []) {
                         users.push({
                             userId: presenceObj.userId,
                             name: presenceObj.name,
+                            image: presenceObj.image,
                             cursor: presenceObj.cursor,
                         });
                     }
@@ -91,6 +93,7 @@ export function useWarRoomChannel(initialMarkers: MapMarker[] = []) {
                 await room.track({
                     userId: session.user.id,
                     name: (session.user as any).displayName || session.user.name || 'Member',
+                    image: session.user.image,
                     online_at: new Date().toISOString(),
                 });
             }

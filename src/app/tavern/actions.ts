@@ -9,7 +9,7 @@ export type TavernPost = {
     id: string;
     author_discord_id: string;
     author_name: string;
-    message: string;
+    content: string;
     color: string;
     created_at: string;
 };
@@ -28,18 +28,18 @@ export async function fetchTavernPosts(): Promise<TavernPost[]> {
     return data || [];
 }
 
-export async function createTavernPost(message: string, color: string): Promise<{ success: boolean; error?: string }> {
+export async function createTavernPost(content: string, color: string): Promise<{ success: boolean; error?: string }> {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) return { success: false, error: "Not authenticated." };
-    if (!message?.trim()) return { success: false, error: "Message is empty." };
-    if (message.trim().length > 280) return { success: false, error: "Max 280 characters." };
+    if (!content?.trim()) return { success: false, error: "Content is empty." };
+    if (content.trim().length > 280) return { success: false, error: "Max 280 characters." };
 
     const authorName = (session.user as any).displayName || session.user.name || "Anonymous";
 
     const { error } = await supabase.from("tavern_posts").insert({
         author_discord_id: session.user.id,
         author_name: authorName,
-        message: message.trim(),
+        content: content.trim(),
         color,
     });
 
