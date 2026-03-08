@@ -44,8 +44,8 @@ export default function Navbar() {
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
 
-                    {/* Logo */}
-                    <div className="flex-shrink-0">
+                    {/* Left: Logo */}
+                    <div className="flex-1 flex justify-start">
                         <Link href="/" className="flex items-center gap-3 group">
                             <div className="w-8 h-8 rounded bg-gradient-to-br from-social-cobalt to-[#4752C4] shadow-[0_0_15px_rgba(88,101,242,0.5)] flex items-center justify-center transition-transform group-hover:scale-110">
                                 <span className="text-white font-bold tracking-tighter">DK</span>
@@ -56,13 +56,8 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Search */}
-                    <div className="hidden md:flex flex-1 justify-center px-8">
-                        <GlobalSearch />
-                    </div>
-
-                    {/* Nav links + Tools dropdown */}
-                    <div className="hidden md:flex items-center gap-1">
+                    {/* Center: Nav links + Tools dropdown */}
+                    <div className="flex-none hidden md:flex items-center gap-1">
                         {navItems.map((item) => {
                             const isActive = pathname === item.href;
                             return (
@@ -122,17 +117,28 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    {/* User info + sign out */}
-                    <div className="flex items-center gap-4 ml-4">
-                        <span className="hidden md:block text-sm font-bold text-gray-300">
-                            {(session.user as any).displayName || session.user.name}
-                        </span>
-                        <button
-                            onClick={() => signOut({ callbackUrl: "/login" })}
-                            className="text-xs font-bold text-gray-500 hover:text-white bg-surface hover:bg-red-500/20 border border-surface-border hover:border-red-500/50 px-3 py-2 rounded-lg transition-all"
-                        >
-                            Log Out
-                        </button>
+                    {/* Right: Search + User info */}
+                    <div className="flex-1 flex justify-end items-center gap-6">
+                        {/* Search Container */}
+                        <div className="hidden md:block w-64 lg:w-80">
+                            <GlobalSearch />
+                        </div>
+
+                        {/* User info + sign out */}
+                        <div className="flex items-center gap-4 border-l border-surface-border pl-6">
+                            <div className="flex flex-col items-end">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#c5a059]">Operative</span>
+                                <span className="text-sm font-bold text-gray-100 leading-none">
+                                    {(session.user as any).displayName || session.user.name}
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => signOut({ callbackUrl: "/login" })}
+                                className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white bg-surface hover:bg-red-500/20 border border-surface-border hover:border-red-500/50 px-3 py-2 rounded transition-all"
+                            >
+                                Log Out
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
