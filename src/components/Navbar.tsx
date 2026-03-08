@@ -23,8 +23,8 @@ export default function Navbar() {
     const userRole = session?.user?.role || 'Member';
 
     const navItems = [
+        { label: "Roster", href: "/tavern", icon: "👥" },
         { label: "Command", href: "/", icon: "📡" },
-        { label: "Tavern", href: "/tavern", icon: "🍺" },
         { label: "War Room", href: "/map", icon: "🛰️" },
         { label: "Empire", href: "/empire", icon: "🏰" },
     ];

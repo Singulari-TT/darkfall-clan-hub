@@ -96,7 +96,7 @@ export function Pinboard({ initialPosts, currentUserId, isAdmin }: {
                     onKeyDown={e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handlePost(); }}
                     maxLength={maxChars}
                     rows={3}
-                    placeholder="Leave a note for the tavern... (Ctrl+Enter to post)"
+                    placeholder="Leave a note for the roster... (Ctrl+Enter to post)"
                     className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-gray-200 text-sm placeholder-gray-600 outline-none focus:border-white/20 resize-none transition-colors font-sans"
                 />
                 <div className="flex justify-between items-center mt-3">

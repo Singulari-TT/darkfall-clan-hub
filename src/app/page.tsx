@@ -138,7 +138,7 @@ export default function Home() {
                   )}
                 </div>
                 <div className="ml-auto text-gray-600">
-                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {isExpanded ? <ChevronDown className="w-4 h-4 rotate-180 transition-transform" /> : <ChevronDown className="w-4 h-4 transition-transform" />}
                 </div>
               </div>
 
@@ -172,15 +172,15 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
 
           {/* Base Card Template with Glassmorphism */}
-          {/* Card: Tavern */}
+          {/* Card: Roster Hub */}
           <Link href="/tavern" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-social-cobalt-border hover:shadow-[0_8px_30px_rgba(88,101,242,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
             <div className="absolute top-0 right-0 w-32 h-32 bg-social-cobalt-dim rounded-full blur-3xl group-hover:bg-social-cobalt-dim*2 transition-colors -mr-10 -mt-10"></div>
             <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-social-cobalt-dim flex items-center justify-center border border-social-cobalt-border group-hover:bg-social-cobalt-dim*2 group-hover:scale-110 transition-all shadow-inner">
-              <span className="text-2xl drop-shadow-md">🍺</span>
+              <span className="text-2xl drop-shadow-md">👥</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
-              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">The Tavern</h2>
-              <p className="text-gray-400 text-sm leading-relaxed">Operative roll call, personal dossiers, and the clan bulletin board.</p>
+              <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Roster Hub</h2>
+              <p className="text-gray-400 text-sm leading-relaxed">Member list, personal dossiers, and the clan bulletin board.</p>
             </div>
           </Link>
 
@@ -344,6 +344,6 @@ export default function Home() {
 
         </div>
       </main>
-    </div>
+    </div >
   );
 }

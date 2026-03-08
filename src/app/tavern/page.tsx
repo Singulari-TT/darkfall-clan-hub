@@ -47,10 +47,10 @@ export default async function TavernPage() {
                         </Link>
                         <div>
                             <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-widest mb-2 drop-shadow-md uppercase">
-                                The <span className="text-[#5865F2]">Tavern</span>
+                                <span className="text-[#5865F2]">Roster</span>
                             </h1>
                             <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">
-                                Active operatives · Clan bulletin board · Off-duty comms
+                                Member Roster · Clan bulletin board · Off-duty comms
                             </p>
                         </div>
                     </div>
@@ -83,7 +83,7 @@ export default async function TavernPage() {
                     <div className="xl:col-span-1 space-y-4">
                         <div className="flex items-center gap-3 mb-2">
                             <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest">
-                                Operative Roll Call
+                                Member List
                             </h2>
                             <div className="flex-1 h-px bg-white/5" />
                             <span className="text-[10px] text-gray-600 font-mono">{sortedUsers.length}</span>
