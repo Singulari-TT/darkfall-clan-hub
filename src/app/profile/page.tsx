@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { UserProfile, fetchMyProfile, updateDisplayName, updateBio, addCharacter, deleteCharacter, toggleMain, updateCharacterRace } from "./actions";
 import { useSession } from "next-auth/react";
-import { Sword, Shield, Activity, Clock, Hammer, ArrowLeft, Crown, RefreshCw, Info } from "lucide-react";
+import { Sword, Shield, Activity, Clock, Hammer, ArrowLeft, Crown, RefreshCw, Info, Plus, Minus, X, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -23,6 +23,7 @@ export default function ProfilePage() {
 
     const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isAddCharOpen, setIsAddCharOpen] = useState(false);
 
     const loadProfile = async () => {
         setIsLoading(true);
@@ -256,30 +257,13 @@ export default function ProfilePage() {
                                                     </div>
                                                 </div>
 
-                                                <div className="hidden lg:grid grid-cols-4 gap-6 px-6 relative z-10 border-l border-red-900/20 ml-6">
-                                                    <div className="text-center">
-                                                        <Sword className="w-3 h-3 text-red-500 mb-1 mx-auto opacity-40" />
-                                                        <p className="text-[10px] font-mono font-bold text-gray-500">
-                                                            {char.last_gank_given ? new Date(char.last_gank_given).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '--'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <Shield className="w-3 h-3 text-blue-500 mb-1 mx-auto opacity-40" />
-                                                        <p className="text-[10px] font-mono font-bold text-gray-500">
-                                                            {char.last_gank_received ? new Date(char.last_gank_received).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '--'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <Activity className="w-3 h-3 text-[rgb(197,160,89)] mb-1 mx-auto opacity-40" />
-                                                        <p className="text-[10px] font-mono font-bold text-gray-500">
-                                                            {char.last_online ? new Date(char.last_online).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '--'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <Hammer className="w-3 h-3 text-emerald-500 mb-1 mx-auto opacity-40" />
-                                                        <p className="text-[10px] font-mono font-bold text-gray-500">
-                                                            {char.last_harvest ? new Date(char.last_harvest).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '--'}
-                                                        </p>
+                                                <div className="hidden lg:flex items-center gap-6 px-6 relative z-10 border-l border-red-900/20 ml-6">
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock className="w-3 h-3 text-stone-500 opacity-40" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-500">Last Online:</span>
+                                                        <span className="text-[11px] font-mono font-bold text-gray-400">
+                                                            {char.last_online ? new Date(char.last_online).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'}
+                                                        </span>
                                                     </div>
                                                 </div>
 
@@ -294,9 +278,10 @@ export default function ProfilePage() {
                                                     )}
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); handleDelete(char.id); }}
-                                                        className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-600 p-2 transition-colors"
+                                                        className="opacity-0 group-hover:opacity-100 text-stone-600 hover:text-red-600 p-2 transition-all hover:bg-red-950/20 rounded"
+                                                        title="Ostracize Character"
                                                     >
-                                                        <Sword className="w-4 h-4 rotate-45" />
+                                                        <X className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -304,59 +289,73 @@ export default function ProfilePage() {
                                 )}
                             </div>
 
-                            <form onSubmit={handleAddAlt} className="bg-black/60 border border-red-900/30 rounded-xl p-5">
-                                <h3 className="text-[10px] uppercase font-black tracking-widest text-[#c5a059] mb-4 flex items-center gap-2">
-                                    <span className="text-red-600 text-lg">+</span> Initiate Alt Operative
-                                </h3>
-                                <div className="space-y-4">
-                                    <input
-                                        type="text"
-                                        required
-                                        value={newCharName}
-                                        onChange={e => setNewCharName(e.target.value)}
-                                        placeholder="Identification Name"
-                                        className="w-full bg-[#0a0a0a] border border-red-900/40 rounded px-4 py-2 text-sm text-gray-300 outline-none focus:border-red-600 transition-colors"
-                                    />
-                                    <div className="flex items-center gap-6 bg-red-950/10 p-3 rounded border border-red-900/20">
-                                        <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="checkbox" checked={newCharIsVisible} onChange={e => setNewCharIsVisible(e.target.checked)} className="accent-red-600" />
-                                            <span className="text-[10px] font-black uppercase text-gray-500 group-hover:text-gray-300 transition-colors">Visible</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="checkbox" checked={newCharAdminOnly} onChange={e => setNewCharAdminOnly(e.target.checked)} className="accent-red-600" />
-                                            <span className="text-[10px] font-black uppercase text-gray-500 group-hover:text-red-800 transition-colors">Shadow Asset</span>
-                                        </label>
-                                    </div>
-                                    <button type="submit" className="w-full py-3 bg-red-900/30 hover:bg-red-900/50 border border-red-900/50 text-[#c5a059] text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-lg shadow-lg">
-                                        Inscribe Operative
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        {/* Intelligence Interface */}
-                        <div className="mt-8 bg-black/40 border border-red-900/30 rounded-xl p-6 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-950/10 rounded-full blur-3xl group-hover:bg-red-950/20 transition-all pointer-events-none"></div>
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-red-950/30 border border-red-900/40 flex items-center justify-center">
-                                        <RefreshCw className={`w-5 h-5 text-[#c5a059] ${isRefreshing ? 'animate-spin' : ''}`} />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#c5a059]">Tactical Uplink</h4>
-                                        <p className="text-[10px] text-gray-500 font-serif italic mt-0.5">
-                                            {selectedCharId ? `Ready to pulse data for ${profile.Characters.find(c => c.id === selectedCharId)?.name}.` : "Select an operative above to establish a link."}
-                                        </p>
-                                    </div>
-                                </div>
+                            <div className="bg-black/40 border border-red-900/30 rounded-xl overflow-hidden transition-all duration-300">
                                 <button
-                                    disabled={!selectedCharId || isRefreshing}
-                                    onClick={() => { setIsRefreshing(true); setTimeout(() => setIsRefreshing(false), 2000); }}
-                                    className={`px-8 py-3 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${selectedCharId && !isRefreshing ? 'bg-red-900/30 border-red-600 text-white hover:bg-red-800/40' : 'bg-stone-900 border-stone-800 text-stone-600 cursor-not-allowed'}`}
+                                    onClick={() => setIsAddCharOpen(!isAddCharOpen)}
+                                    className="w-full px-5 py-4 flex items-center justify-between group hover:bg-red-950/20 transition-all"
                                 >
-                                    {isRefreshing ? "SYNCING..." : "Pulse Intelligence"}
+                                    <h3 className="text-[10px] uppercase font-black tracking-[0.2em] text-[#c5a059] flex items-center gap-3">
+                                        <Plus className={`w-4 h-4 text-red-600 transition-transform duration-300 ${isAddCharOpen ? 'rotate-45' : ''}`} />
+                                        Add Character
+                                    </h3>
+                                    {isAddCharOpen ? <ChevronUp className="w-4 h-4 text-stone-600" /> : <ChevronDown className="w-4 h-4 text-stone-600" />}
                                 </button>
+
+                                {isAddCharOpen && (
+                                    <form onSubmit={handleAddAlt} className="p-5 pt-0 border-t border-red-900/20 animate-in slide-in-from-top-2 duration-300">
+                                        <div className="space-y-4 mt-4">
+                                            <input
+                                                type="text"
+                                                required
+                                                value={newCharName}
+                                                onChange={e => setNewCharName(e.target.value)}
+                                                placeholder="Identification Name"
+                                                className="w-full bg-[#0a0a0a] border border-red-900/40 rounded px-4 py-3 text-sm text-gray-300 outline-none focus:border-red-600 transition-colors shadow-inner"
+                                            />
+                                            <div className="flex items-center gap-6 bg-red-950/10 p-4 rounded border border-red-900/20">
+                                                <label className="flex items-center gap-2 cursor-pointer group">
+                                                    <input type="checkbox" checked={newCharIsVisible} onChange={e => setNewCharIsVisible(e.target.checked)} className="accent-red-600 w-4 h-4" />
+                                                    <span className="text-[10px] font-black uppercase text-gray-500 group-hover:text-gray-300 transition-colors tracking-widest">Publically Visible</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer group">
+                                                    <input type="checkbox" checked={newCharAdminOnly} onChange={e => setNewCharAdminOnly(e.target.checked)} className="accent-red-600 w-4 h-4" />
+                                                    <span className="text-[10px] font-black uppercase text-gray-500 group-hover:text-red-800 transition-colors tracking-widest">Shadow Asset</span>
+                                                </label>
+                                            </div>
+                                            <button type="submit" className="w-full py-4 bg-red-900/30 hover:bg-red-900/50 border border-red-900/50 text-[#c5a059] text-[10px] font-black uppercase tracking-[0.3em] transition-all rounded-lg shadow-lg active:scale-[0.98]">
+                                                Inscribe Operative
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Tactical Uplink - Now outside the right column to span better if needed, but in this 3-col grid we'll make it col-span-3 */}
+                    <div className="md:col-span-3 bg-black/40 border border-red-900/30 rounded-xl p-8 relative overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-red-950/10 rounded-full blur-[100px] group-hover:bg-red-950/20 transition-all pointer-events-none"></div>
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                            <div className="flex items-center gap-6">
+                                <div className="w-14 h-14 rounded-xl bg-red-950/30 border border-red-900/40 flex items-center justify-center shadow-inner">
+                                    <RefreshCw className={`w-7 h-7 text-[#c5a059] ${isRefreshing ? 'animate-spin' : ''}`} />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#c5a059]">Tactical Data Uplink</h4>
+                                    <p className="text-xs text-gray-500 font-serif italic mt-1 max-w-xl">
+                                        {selectedCharId
+                                            ? `Channeling real-time intelligence for ${profile.Characters.find(c => c.id === selectedCharId)?.name}. Estabilishing secure news-reel handshake...`
+                                            : "Select a declared operative from the codex above to establish a tactical synchronization link."}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                disabled={!selectedCharId || isRefreshing}
+                                onClick={() => { setIsRefreshing(true); setTimeout(() => setIsRefreshing(false), 2000); }}
+                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] border transition-all shadow-xl active:scale-95 ${selectedCharId && !isRefreshing ? 'bg-gradient-to-br from-red-600 to-black border-red-900 text-white hover:border-red-500' : 'bg-stone-900 border-stone-800 text-stone-600 cursor-not-allowed'}`}
+                            >
+                                {isRefreshing ? "SYNCING..." : "Pulse Intelligence"}
+                            </button>
                         </div>
                     </div>
                 </div>
