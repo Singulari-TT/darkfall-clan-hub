@@ -62,14 +62,13 @@ export default function EmpirePage() {
     // @ts-ignore
     const isAdmin = session?.user?.role === 'Admin';
 
-    const [holdings, setHoldings] = useState<Holding[]>([]);
+    const [holdings, setHoldings] = useState<Holding[]>(MANUAL_HOLDINGS);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [lastSync, setLastSync] = useState<string | null>(null);
     const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
     async function fetchEmpireData() {
-        setLoading(true);
         try {
             // Fetch last sync from SystemConfig
             const { data: syncData } = await supabase
