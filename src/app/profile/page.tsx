@@ -10,6 +10,7 @@ export default function ProfilePage() {
     const { status } = useSession();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const [isEditingName, setIsEditingName] = useState(false);
     const [newName, setNewName] = useState("");
@@ -25,13 +26,17 @@ export default function ProfilePage() {
 
     const loadProfile = async () => {
         setIsLoading(true);
+        setError(null);
         try {
             const data = await fetchMyProfile();
             setProfile(data);
-            setNewName(data.display_name || "");
-            setNewBio(data.bio || "");
-        } catch (e) {
+            if (data) {
+                setNewName(data.display_name || "");
+                setNewBio(data.bio || "");
+            }
+        } catch (e: any) {
             console.error(e);
+            setError(e.message || "Failed to establish connection to identity mainframe.");
         } finally {
             setIsLoading(false);
         }
@@ -47,8 +52,20 @@ export default function ProfilePage() {
         return <div className="min-h-screen bg-[#0e0c10] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-red-800 border-t-[#c5a059] animate-spin"></div></div>;
     }
 
-    if (!profile) {
-        return <div className="min-h-screen bg-[#0e0c10] text-center pt-24 text-red-500 font-heading">Error loading identity codex.</div>;
+    if (error || !profile) {
+        return (
+            <div className="min-h-screen bg-[#0e0c10] flex flex-col items-center justify-center p-8 text-center">
+                <div className="bg-red-950/20 border border-red-900/50 p-8 rounded-2xl max-w-md space-y-4 shadow-2xl">
+                    <h1 className="text-2xl font-heading font-black text-red-600 uppercase tracking-widest">Codex Access Restricted</h1>
+                    <p className="text-stone-400 font-serif italic text-sm">{error || "The requested soul registry record could not be found."}</p>
+                    <div className="pt-4">
+                        <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#c5a059] hover:text-white transition-colors">
+                            <ArrowLeft className="w-3 h-3" /> Back to Terminal
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const handleSaveName = async () => {
