@@ -41,73 +41,73 @@ export default function Navbar() {
 
     return (
         <nav className="bg-background/80 backdrop-blur-[--blur-glass] border-b border-surface-border sticky top-0 z-[5000] shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+            <div className="w-full px-6 lg:px-10">
+                <div className="flex items-center justify-between h-20">
 
                     {/* Left: Logo */}
                     <div className="flex-1 flex justify-start">
-                        <Link href="/" className="flex items-center gap-3 group">
-                            <div className="w-8 h-8 rounded bg-gradient-to-br from-social-cobalt to-[#4752C4] shadow-[0_0_15px_rgba(88,101,242,0.5)] flex items-center justify-center transition-transform group-hover:scale-110">
-                                <span className="text-white font-bold tracking-tighter">DK</span>
+                        <Link href="/" className="flex items-center gap-4 group">
+                            <div className="w-10 h-10 rounded bg-gradient-to-br from-social-cobalt to-[#4752C4] shadow-[0_0_20px_rgba(88,101,242,0.4)] flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-3">
+                                <span className="text-white font-bold tracking-tighter text-lg">DK</span>
                             </div>
-                            <span className="text-xl font-heading font-black text-white tracking-widest drop-shadow-sm group-hover:text-social-cobalt transition-colors">
+                            <span className="text-2xl font-heading font-black text-white tracking-[0.2em] drop-shadow-sm group-hover:text-social-cobalt transition-colors hidden sm:block">
                                 DREADKREW
                             </span>
                         </Link>
                     </div>
 
                     {/* Center: Nav links + Tools dropdown */}
-                    <div className="flex-none hidden md:flex items-center gap-1">
+                    <div className="flex-none hidden md:flex items-center gap-2">
                         {navItems.map((item) => {
                             const isActive = pathname === item.href;
                             return (
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all border ${isActive
-                                        ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
+                                    className={`px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all border ${isActive
+                                        ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border shadow-[inset_0_0_20px_rgba(88,101,242,0.1)]"
                                         : "text-gray-400 hover:text-white hover:bg-surface-hover border-transparent"
                                         }`}
                                 >
-                                    <span className={`transition-transform ${isActive ? "scale-110" : ""}`}>{item.icon}</span>
+                                    <span className={`transition-transform duration-300 ${isActive ? "scale-125" : "group-hover:scale-110"}`}>{item.icon}</span>
                                     {item.label}
                                 </Link>
                             );
                         })}
 
-                        {/* Tools dropdown — 5th slot */}
+                        {/* Tools dropdown */}
                         <div className="relative group">
                             <button
-                                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all border ${isToolActive
-                                    ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
+                                className={`px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all border ${isToolActive
+                                    ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border shadow-[inset_0_0_20px_rgba(88,101,242,0.1)]"
                                     : "text-gray-400 hover:text-white hover:bg-surface-hover border-transparent"
                                     }`}
                             >
                                 <span>🔧</span>
                                 Tools
                                 <svg
-                                    className="w-3 h-3 opacity-40 group-hover:opacity-100 group-hover:rotate-180 transition-all duration-200"
+                                    className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:rotate-180 transition-all duration-300"
                                     fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
 
                             {/* Dropdown */}
-                            <div className="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 translate-y-1 group-hover:translate-y-0">
-                                <div className="bg-background/95 backdrop-blur-xl border border-surface-border rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.7)] overflow-hidden p-1 w-48">
+                            <div className="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-2 group-hover:translate-y-0">
+                                <div className="bg-background/95 backdrop-blur-2xl border border-surface-border rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden p-1.5 w-56">
                                     {toolItems.map((item) => {
                                         const isActive = pathname === item.href;
                                         return (
                                             <Link
                                                 key={item.href}
                                                 href={item.href}
-                                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
+                                                className={`flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive
                                                     ? "bg-social-cobalt-dim text-social-cobalt"
                                                     : "text-gray-400 hover:text-white hover:bg-surface-hover"
                                                     }`}
                                             >
-                                                <span className="text-base">{item.icon}</span>
+                                                <span className="text-lg">{item.icon}</span>
                                                 {item.label}
                                             </Link>
                                         );
@@ -118,23 +118,32 @@ export default function Navbar() {
                     </div>
 
                     {/* Right: Search + User info */}
-                    <div className="flex-1 flex justify-end items-center gap-6">
+                    <div className="flex-1 flex justify-end items-center gap-8">
                         {/* Search Container */}
-                        <div className="hidden md:block w-64 lg:w-80">
+                        <div className="hidden md:block w-72 lg:w-96">
                             <GlobalSearch />
                         </div>
 
                         {/* User info + sign out */}
-                        <div className="flex items-center gap-4 border-l border-surface-border pl-6">
-                            <div className="flex flex-col items-end">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[#c5a059]">Operative</span>
-                                <span className="text-sm font-bold text-gray-100 leading-none">
-                                    {(session.user as any).displayName || session.user.name}
-                                </span>
+                        <div className="flex items-center gap-5 border-l border-surface-border pl-8">
+                            <div className="flex items-center gap-3">
+                                {session.user.image && (
+                                    <img
+                                        src={session.user.image}
+                                        alt="Avatar"
+                                        className="w-9 h-9 rounded-full border border-red-900/40 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                                    />
+                                )}
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#c5a059] opacity-70">Operative</span>
+                                    <span className="text-sm font-bold text-gray-100 leading-tight">
+                                        {(session.user as any).displayName || session.user.name}
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 onClick={() => signOut({ callbackUrl: "/login" })}
-                                className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white bg-surface hover:bg-red-500/20 border border-surface-border hover:border-red-500/50 px-3 py-2 rounded transition-all"
+                                className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white bg-surface hover:bg-red-500/10 border border-surface-border hover:border-red-500/40 px-4 py-2.5 rounded-lg transition-all shadow-sm"
                             >
                                 Log Out
                             </button>
