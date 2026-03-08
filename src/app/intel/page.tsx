@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { submitIntel, submitLootpack, fetchWeeklyLootpackLeaderboard } from "./actions";
+import Link from "next/link";
+import { ArrowLeft, Camera, Send, Loader2, Info, Clock, Shield, Sword } from "lucide-react";
 
 export default function IntelPage() {
     const [activeTab, setActiveTab] = useState<"tactical" | "lootpack">("tactical");
@@ -122,11 +124,20 @@ export default function IntelPage() {
         <div className="min-h-screen bg-transparent text-gray-200 p-4 sm:p-8 font-sans selection:bg-[#5865F2]/30">
             <div className="max-w-7xl mx-auto space-y-8 relative z-10">
 
-                <header className="border-b border-white/10 pb-6">
-                    <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-sm uppercase tracking-wider mb-2">
-                        Intelligence & <span className="text-[#5865F2]">Logistics</span>
-                    </h1>
-                    <p className="text-gray-400 font-sans text-lg">Report enemy movements or submit your farming yields for network rewards.</p>
+                <header className="border-b border-white/10 pb-6 flex items-center gap-6">
+                    <Link
+                        href="/"
+                        className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-social-cobalt-border group"
+                        title="Back to Command"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-social-cobalt" />
+                    </Link>
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-sm uppercase tracking-wider mb-2 leading-tight">
+                            Intelligence & <span className="text-[#5865F2]">Logistics</span>
+                        </h1>
+                        <p className="text-gray-400 font-sans text-sm">Report enemy movements or submit your farming yields for network rewards.</p>
+                    </div>
                 </header>
 
                 {/* Highly Stylized Distinct Tab Buttons */}
@@ -156,18 +167,14 @@ export default function IntelPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Form */}
                     <div className="lg:col-span-2 space-y-6">
-                        <form onSubmit={activeTab === 'tactical' ? handleSubmitTactical : handleSubmitLootpack} className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl relative overflow-hidden">
-                            <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${activeTab === 'tactical' ? 'via-[#5865F2]' : 'via-[#10b981]'} to-transparent opacity-50`}></div>
+                        <form onSubmit={activeTab === 'tactical' ? handleSubmitTactical : handleSubmitLootpack} className="bg-surface border border-surface-border rounded-card p-6 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-[--blur-glass] relative overflow-hidden">
+                            <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${activeTab === 'tactical' ? 'via-social-cobalt' : 'via-[#10b981]'} to-transparent opacity-50`}></div>
 
-                            <h2 className={`text-xl font-bold ${activeTab === 'tactical' ? 'text-[#5865F2]' : 'text-[#10b981]'} mb-6 tracking-wide uppercase`}>
+                            <h2 className={`text-xl font-bold ${activeTab === 'tactical' ? 'text-social-cobalt' : 'text-[#10b981]'} mb-6 tracking-wide uppercase`}>
                                 {activeTab === 'tactical' ? 'Submit Tactical Intel' : 'Log Farming Yield'}
                             </h2>
 
-                            {message && (
-                                <div className={`p-4 mb-6 rounded-lg border font-bold text-sm tracking-wide ${message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-500'}`}>
-                                    {message.text}
-                                </div>
-                            )}
+                            {/* ... message area ... */}
 
                             <div className="space-y-6">
                                 {/* Image Input */}
@@ -177,7 +184,7 @@ export default function IntelPage() {
                                         {activeTab === 'tactical' && <span className="text-gray-600 font-sans text-[10px]">(Optional if providing text report)</span>}
                                     </label>
                                     <div
-                                        className={`border-2 border-dashed rounded-2xl relative overflow-hidden flex items-center justify-center transition-colors min-h-[250px] cursor-pointer ${previewUrl ? 'border-[#5865F2]/50 bg-black/50' : `border-white/10 bg-black/40 hover:bg-black/60 hover:border-${activeTab === 'tactical' ? '[#5865F2]' : '[#10b981]'}/50`}`}
+                                        className={`border-2 border-dashed rounded-card relative overflow-hidden flex items-center justify-center transition-colors min-h-[250px] cursor-pointer ${previewUrl ? 'border-social-cobalt-border bg-black/50' : `border-surface-border bg-black/40 hover:bg-black/60 hover:border-${activeTab === 'tactical' ? 'social-cobalt-border' : '[#10b981]/50'}`}`}
                                         onClick={() => !previewUrl && fileInputRef.current?.click()}
                                     >
                                         {previewUrl ? (
@@ -186,7 +193,7 @@ export default function IntelPage() {
                                                 <button
                                                     type="button"
                                                     onClick={(e) => { e.stopPropagation(); setFile(null); setPreviewUrl(null); }}
-                                                    className="absolute top-4 right-4 bg-black/80 border border-white/20 text-white p-2 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-all opacity-0 group-hover:opacity-100 backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.5)]"
+                                                    className="absolute top-4 right-4 bg-black/80 border border-surface-border text-white p-2 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-all opacity-0 group-hover:opacity-100 backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.5)]"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                 </button>
@@ -212,7 +219,7 @@ export default function IntelPage() {
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             placeholder="Provide context, enemy strength, grid reference..."
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-gray-300 focus:border-[#5865F2]/50 outline-none transition-all resize-none font-sans"
+                                            className="w-full bg-black/40 border border-surface-border rounded-xl p-4 text-gray-300 focus:border-social-cobalt-border outline-none transition-all resize-none font-sans"
                                             rows={3}
                                         />
                                     </div>
@@ -227,7 +234,7 @@ export default function IntelPage() {
                                             value={lootValue}
                                             onChange={(e) => setLootValue(parseInt(e.target.value) || "")}
                                             placeholder="e.g. 150000"
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-200 focus:border-[#10b981]/50 outline-none transition-colors font-mono tracking-wider text-xl"
+                                            className="w-full bg-black/40 border border-surface-border rounded-xl px-4 py-3 text-gray-200 focus:border-[#10b981]/50 outline-none transition-colors font-mono tracking-wider text-xl"
                                         />
                                         <p className="text-xs text-gray-600 mt-2 font-sans">Enter the rough gold value of the submitted lootpack image.</p>
                                     </div>
@@ -238,9 +245,9 @@ export default function IntelPage() {
                                     disabled={isSubmitting || (activeTab === 'tactical' && !file && description.trim().length === 0) || (activeTab === 'lootpack' && !file)}
                                     className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all text-sm border shadow-sm
                                         ${isSubmitting || (activeTab === 'tactical' && !file && description.trim().length === 0) || (activeTab === 'lootpack' && !file)
-                                            ? 'bg-white/5 text-gray-600 border-white/5 cursor-not-allowed'
+                                            ? 'bg-surface text-gray-600 border-surface-border cursor-not-allowed'
                                             : activeTab === 'tactical'
-                                                ? 'bg-[#5865F2]/90 hover:bg-[#5865F2] text-white border-[#5865F2] shadow-[0_4px_20px_rgba(88,101,242,0.3)] hover:-translate-y-0.5'
+                                                ? 'bg-social-cobalt/90 hover:bg-social-cobalt text-white border-social-cobalt shadow-[0_4px_20px_rgba(88,101,242,0.3)] hover:-translate-y-0.5'
                                                 : 'bg-[#10b981]/90 hover:bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5'}`}
                                 >
                                     {isSubmitting ? 'Transmitting...' : activeTab === 'tactical' ? 'Relay Intelligence' : 'Submit for Contest'}
@@ -249,13 +256,12 @@ export default function IntelPage() {
                         </form>
                     </div>
 
-                    {/* Right Column: Leaderboard */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl flex flex-col min-h-[500px]">
+                        <div className="bg-surface border border-surface-border rounded-card p-6 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-[--blur-glass] flex flex-col min-h-[500px]">
                             <h2 className="text-lg font-bold text-[#10b981] tracking-widest uppercase mb-1">
                                 Yield Leaderboard
                             </h2>
-                            <p className="text-xs text-gray-500 mb-6 border-b border-white/10 pb-4">
+                            <p className="text-xs text-gray-500 mb-6 border-b border-surface-border pb-4">
                                 Highest yield wins <span className="text-emerald-400 font-bold">2 Theyril Ingots</span>.
                             </p>
 

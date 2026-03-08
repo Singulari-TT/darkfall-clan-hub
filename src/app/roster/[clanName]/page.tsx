@@ -157,7 +157,10 @@ export default function ClanDetailsPage() {
                                 <Sword className="w-4 h-4 text-rose-500" />
                                 <span className="text-xl font-black text-white">{clanData.total_activity}</span>
                             </div>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-tighter">Combat Intensity</p>
+                            <div className="flex items-center gap-1.5 justify-end">
+                                <p className="text-[10px] text-gray-500 uppercase tracking-tighter cursor-help" title="Total PvP appearances (kills or deaths) recorded for this clan in the last 24h.">Combat Intensity</p>
+                                <Info className="w-3 h-3 text-gray-600" />
+                            </div>
                         </div>
                     </div>
                 </div>

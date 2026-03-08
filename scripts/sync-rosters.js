@@ -98,6 +98,72 @@ async function syncExternalRosters() {
 
         console.log(`Successfully updated ${upsertData.length} clans in ExternalClanRosters.`);
 
+        // --- NEW: Update individual member tactical metrics ---
+        console.log("Updating individual member tactical metrics...");
+        let tacticalUpdates = 0;
+
+        // Collect all unique names from the feed
+        const feedNames = new Set();
+        const killerMap = new Map(); // name -> lastSeen
+        const victimMap = new Map(); // name -> lastSeen
+
+        while ((match = gankRowRegex.exec(html)) !== null) {
+            const [_, timeStr, killerHtml, victimHtml] = match;
+
+            const extractName = (cellHtml) => {
+                const nameM = cellHtml.match(nameRegex);
+                return nameM ? nameM[1].trim() : null;
+            };
+
+            const killerName = extractName(killerHtml);
+            const victimName = extractName(victimHtml);
+            const timeIso = new Date(timeStr.trim() + ' UTC').toISOString();
+
+            if (killerName) {
+                feedNames.add(killerName);
+                if (!killerMap.has(killerName)) killerMap.set(killerName, timeIso);
+            }
+            if (victimName) {
+                feedNames.add(victimName);
+                if (!victimMap.has(victimName)) victimMap.set(victimName, timeIso);
+            }
+        }
+
+        // Fetch all our registered members to see if they match
+        const { data: ourMembers } = await supabase
+            .from("Characters")
+            .select("id, name");
+
+        if (ourMembers) {
+            for (const char of ourMembers) {
+                const updates = {};
+                if (killerMap.has(char.name)) {
+                    updates.last_gank_given = killerMap.get(char.name);
+                }
+                if (victimMap.has(char.name)) {
+                    updates.last_gank_received = victimMap.get(char.name);
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    const { error: updateError } = await supabase
+                        .from("Characters")
+                        .update(updates)
+                        .eq("id", char.id);
+
+                    if (!updateError) tacticalUpdates++;
+                }
+            }
+        }
+        console.log(`Updated tactical metrics for ${tacticalUpdates} registered members.`);
+
+        // --- NEW: Heartbeat ---
+        await supabase
+            .from("SystemConfig")
+            .upsert([
+                { key: 'last_roster_sync', value: 'Success', updated_at: new Date().toISOString() },
+                { key: 'last_gank_intel_sync', value: 'Success', updated_at: new Date().toISOString() }
+            ], { onConflict: 'key' });
+
     } catch (error) {
         console.error("Sync Error:", error.message);
         process.exit(1);

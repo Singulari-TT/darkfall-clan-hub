@@ -19,6 +19,14 @@ export interface CharacterItem {
     admin_only: boolean;
     is_main: boolean;
     created_at: string;
+    last_gank_given: string | null;
+    last_gank_received: string | null;
+    last_gank_opponent_given: string | null;
+    last_gank_opponent_received: string | null;
+    last_online: string | null;
+    last_harvest: string | null;
+    last_session_length: number | null;
+    race: string | null;
 }
 
 export interface UserProfile {
@@ -48,7 +56,16 @@ export async function fetchMyProfile() {
                 id,
                 name,
                 is_visible,
-                admin_only
+                admin_only,
+                last_gank_given,
+                last_gank_received,
+                last_gank_opponent_given,
+                last_gank_opponent_received,
+                last_online,
+                last_harvest,
+                last_session_length,
+                race,
+                is_main
             )
         `)
         .eq(getIdField(session.user.id), session.user.id)
@@ -214,6 +231,24 @@ export async function toggleMain(charId: string) {
     return true;
 }
 
+export async function updateCharacterRace(charId: string, race: string) {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
+
+    const { error } = await supabase
+        .from("Characters")
+        .update({ race })
+        .eq("id", charId);
+
+    if (error) {
+        console.error("Error updating character race:", error);
+        throw new Error("Failed to update race");
+    }
+
+    revalidatePath("/profile");
+    return true;
+}
+
 export async function fetchAllMemberIdentities() {
     const session = await getServerSession(authOptions);
     if (!session) throw new Error("Unauthorized");
@@ -236,17 +271,77 @@ export async function fetchAllMemberIdentities() {
             discord_id,
             display_name,
             role,
+            status,
             created_at,
             Characters (
                 id,
                 name,
                 is_main,
                 is_visible,
-                admin_only
+                admin_only,
+                last_gank_given,
+                last_gank_received,
+                last_gank_opponent_given,
+                last_gank_opponent_received,
+                last_online,
+                last_harvest,
+                last_session_length,
+                race,
+                is_main
             )
         `)
         .order("created_at", { ascending: false });
 
     if (error) throw error;
     return data;
+}
+
+export async function approveMember(userId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session) throw new Error("Unauthorized");
+
+    const { error } = await supabase
+        .from("Users")
+        .update({ status: "Active" })
+        .eq("id", userId);
+
+    if (error) throw error;
+
+    // Send notification
+    const { data: user } = await supabase.from("Users").select("display_name, discord_id").eq("id", userId).single();
+    if (user) {
+        await sendDiscordNotification(`✅ **Member Approved:** \`${user.display_name || user.discord_id}\` has been activated by an Admin. Welcome to the Dreadkrew proper.`);
+    }
+
+    revalidatePath("/admin/identities");
+    revalidatePath("/directory");
+    return { success: true };
+}
+
+export async function denyMember(userId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session) throw new Error("Unauthorized");
+
+    const { error } = await supabase
+        .from("Users")
+        .delete()
+        .eq("id", userId);
+
+    if (error) throw error;
+
+    revalidatePath("/admin/identities");
+    return { success: true };
+}
+
+export async function checkRosterMatch(charName: string) {
+    const { data, error } = await supabase
+        .from("ExternalClanRosters")
+        .select("members")
+        .eq("clan_name", "Dreadkrew")
+        .single();
+
+    if (error || !data) return false;
+
+    const members = data.members as any[];
+    return members.some((m: any) => m.name.toLowerCase() === charName.toLowerCase());
 }

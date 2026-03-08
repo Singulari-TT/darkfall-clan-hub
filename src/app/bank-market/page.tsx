@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { MarketOrder, fetchMarketOrders, createMarketOrder, deleteMarketOrder, updateOrderStatus, sendOrderToDiscord } from "./actions";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { ArrowLeft, ShoppingCart, Tag, User, Clock, CheckCircle, XCircle, Send, Plus, Trash2 } from "lucide-react";
 
 export default function MarketplacePage() {
     const { data: session, status } = useSession();
@@ -89,15 +91,21 @@ export default function MarketplacePage() {
         <div className="min-h-screen bg-transparent text-gray-200 p-4 sm:p-8 font-sans selection:bg-[#5865F2]/30">
             <div className="max-w-[1500px] mx-auto space-y-8 relative z-10">
 
-                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/10">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight flex items-center gap-4 mb-2">
-                            <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-2xl">
-                                ⚖️
-                            </div>
-                            <span className="text-[#5865F2]">Marketplace</span>
-                        </h1>
-                        <p className="text-gray-400 font-sans text-lg">Trade logistics, secure resources, and coordinate supply chains.</p>
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
+                    <div className="flex items-center gap-6">
+                        <Link
+                            href="/"
+                            className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-social-cobalt-border group"
+                            title="Back to Command"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-social-cobalt" />
+                        </Link>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight flex items-center gap-4 mb-2 leading-tight">
+                                <span className="text-[#5865F2]">Marketplace</span>
+                            </h1>
+                            <p className="text-gray-400 font-sans text-sm">Trade logistics, secure resources, and coordinate supply chains.</p>
+                        </div>
                     </div>
 
                     <button

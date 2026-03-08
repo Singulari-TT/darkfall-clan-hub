@@ -27,9 +27,11 @@ export default function AdminSidebar() {
     }
 
     const adminLinks = [
+        { label: "High Command", href: "/admin/identities", icon: "🏢" },
         { label: "Item Scanner", href: "/admin/scanner", icon: "📸" },
         { label: "Vault Statistics", href: "/admin/vault-stats", icon: "📊" },
         { label: "Audit Trail", href: "/admin/audit", icon: "⚙️" },
+        { label: "System Vitality", href: "/admin/settings", icon: "⚡" },
         { label: "Donations", href: "/donations", icon: "📜" },
     ];
 

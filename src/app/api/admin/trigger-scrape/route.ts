@@ -9,12 +9,19 @@ function sha1Upper(text: string) {
 }
 
 const LZW_decompress = (compressed: string[]): string => {
+    if (!compressed || compressed.length === 0 || (compressed.length === 1 && !compressed[0])) return "";
+
     let dictSize = 0;
     const dictionary: Record<number, string> = {};
-    let w = String.fromCharCode(parseInt(compressed[0]));
+    const firstCode = parseInt(compressed[0]);
+    if (isNaN(firstCode)) return "";
+
+    let w = String.fromCharCode(firstCode);
     let result = w;
     for (let i = 1; i < compressed.length; i++) {
         const k = compressed[i];
+        if (!k) continue;
+
         let entry = "";
         if (!k.startsWith("_")) {
             entry = String.fromCharCode(parseInt(k));
@@ -40,11 +47,27 @@ async function authenticate() {
         body: new URLSearchParams({ UserName: username, RequestOwner: "EXTBRM" }),
     });
     const text1 = await resp1.text();
-    const rck = text1.match(/<RCK>(.*?)<\/RCK>/)![1];
-    const wbg = text1.match(/<WebGateRequest>(.*?)<\/WebGateRequest>/)![1];
+
+    const rckMatch = text1.match(/<RCK>(.*?)<\/RCK>/);
+    const wbgMatch = text1.match(/<WebGateRequest>(.*?)<\/WebGateRequest>/);
+
+    if (!rckMatch || !wbgMatch) {
+        throw new Error(`WebGate Init Failed. Response: ${text1.substring(0, 100)}...`);
+    }
+
+    const rck = rckMatch[1];
+    const wbg = wbgMatch[1];
     const hpass = sha1Upper(sha1Upper(password) + rck);
+
     const resp2 = await fetch(`${baseUrl}?WebGateRequest=${wbg}&Password=${hpass}&UserName=${username}&RequestOwner=EXTBRM`);
-    return (await resp2.text()).match(/<SessionKey>(.*?)<\/SessionKey>/)![1];
+    const text2 = await resp2.text();
+
+    const sessionMatch = text2.match(/<SessionKey>(.*?)<\/SessionKey>/);
+    if (!sessionMatch) {
+        throw new Error(`WebGate Auth Failed (SessionKey missing). Response: ${text2.substring(0, 100)}...`);
+    }
+
+    return sessionMatch[1];
 }
 
 async function fetchNewsXml(sessionKey: string): Promise<string | null> {
@@ -65,9 +88,39 @@ async function runOnlineStatus(db: any): Promise<{ processed: number; note: stri
     const xml = await fetchNewsXml(sessionKey);
     if (!xml) return { processed: 0, note: "No data from news reel" };
 
-    // Count online member tags
-    const matches = xml.match(/<OnlineRecord>/g);
-    const count = matches?.length ?? 0;
+    // 1. Current Online Count (from <OnlineRecord>)
+    const charNameRegex = /<CharacterName>(.*?)<\/CharacterName>/g;
+    const onlineNames: string[] = [];
+    let match;
+    while ((match = charNameRegex.exec(xml)) !== null) {
+        onlineNames.push(match[1]);
+    }
+    const count = onlineNames.length;
+
+    // Reset status and update currently online characters
+    await db.from("Characters").update({ is_online: false });
+    if (count > 0) {
+        await db.from("Characters")
+            .update({ is_online: true, last_online: new Date().toISOString() })
+            .in("name", onlineNames);
+    }
+
+    // 2. Scan News Reel for Logon/Logoff Session Details
+    const lines = xml.split("\n");
+    for (const line of lines) {
+        const textMatch = line.match(/<Text>(.*?)<\/Text>/);
+        if (textMatch) {
+            const text = textMatch[1];
+            // Match: "CharacterName has logged off. Session length: 45m."
+            const logoffMatch = text.match(/^(.*?) has logged off\. Session length: (\d+)m\.$/);
+            if (logoffMatch) {
+                const [, charName, minutes] = logoffMatch;
+                await db.from("Characters")
+                    .update({ last_session_length: parseInt(minutes) })
+                    .eq("name", charName);
+            }
+        }
+    }
 
     // Update the SystemConfig table so the dashboard reflects this
     await db.from("SystemConfig").upsert({
@@ -75,7 +128,7 @@ async function runOnlineStatus(db: any): Promise<{ processed: number; note: stri
         value: count.toString()
     }, { onConflict: "key" });
 
-    return { processed: count, note: `Found ${count} online records. Database updated.` };
+    return { processed: count, note: `Synchronized ${count} online characters and processed session logs.` };
 }
 
 async function runHarvestSync(db: any): Promise<{ processed: number; note: string }> {
@@ -97,11 +150,21 @@ async function runHarvestSync(db: any): Promise<{ processed: number; note: strin
 
         if (currentTime && currentText) {
             const harvestMatch = currentText.match(/^(.*?) has harvested a (.*?) in (.*?) \((\d+)(?:st|nd|rd|th)? time\)\.$/);
-            if (harvestMatch) {
-                const [, , nodeType, holdingName, milestone] = harvestMatch;
-                const { data: holding } = await db.from("Holdings").select("id").eq("name", holdingName).single();
+            if (harvestMatch && harvestMatch.length >= 5) {
+                const playerName = harvestMatch[1];
+                const nodeType = harvestMatch[2];
+                const holdingName = harvestMatch[3];
+                const milestone = harvestMatch[4];
+
+                // 1. Update individual character metrics
+                await db.from("Characters")
+                    .update({ last_harvest: new Date().toISOString() })
+                    .eq("name", playerName);
+
+                // 2. Update holdings records
+                const { data: holding } = await db.from("Holdings").select("id").eq("name", holdingName).maybeSingle();
                 if (holding) {
-                    const { data: node } = await db.from("Resource_Nodes").select("id, total_hits").eq("holding_id", (holding as any).id).eq("node_type", nodeType).single();
+                    const { data: node } = await db.from("Resource_Nodes").select("id, total_hits").eq("holding_id", (holding as any).id).eq("node_type", nodeType).maybeSingle();
                     if (node) {
                         await db.from("Resource_Nodes").update({ total_hits: Math.max((node as any).total_hits, parseInt(milestone)) }).eq("id", (node as any).id);
                     } else {
@@ -138,10 +201,11 @@ async function runHoldingsSync(db: any): Promise<{ processed: number; note: stri
 
     let totalUpdated = 0;
     for (const hMatch of holdingIDs) {
-        const hId = hMatch.match(/<HoldingID>(.*?)<\/HoldingID>/)![1];
+        const idMatch = hMatch.match(/<HoldingID>(.*?)<\/HoldingID>/);
+        if (!idMatch) continue;
+        const hId = idMatch[1];
 
-        // 2. Request Individual Holding Detail (Request 103/104 usually)
-        // Testing Request 103 for details as per typical WebGate pattern
+        // 2. Request Individual Holding Detail
         const respDetail = await fetch(`${baseUrl}?SessionKey=${sessionKey}&WebGateRequest=103&RequestOwner=QETUO`, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -156,21 +220,27 @@ async function runHoldingsSync(db: any): Promise<{ processed: number; note: stri
 
             // Upsert Holding
             const { data: holding } = await db.from("Holdings").upsert({ name, type: 'City' }, { onConflict: 'name' }).select('id').single();
-            const holdingDbId = (holding as any).id;
+            const holdingDbId = (holding as any)?.id;
+            if (!holdingDbId) continue;
 
-            // Extract Resource Nodes (e.g. <BuildingName>Timber Grove</BuildingName><HitsPercentage>1543</HitsPercentage>)
+            // Extract Resource Nodes
             const nodes = detailXml.match(/<BuildingName>(.*?)<\/BuildingName>[\s\S]*?<HitsPercentage>(.*?)<\/HitsPercentage>/g);
             if (nodes) {
                 for (const nodeXml of nodes) {
-                    const nodeType = nodeXml.match(/<BuildingName>(.*?)<\/BuildingName>/)![1];
-                    const hits = parseInt(nodeXml.match(/<HitsPercentage>(.*?)<\/HitsPercentage>/)![1]);
+                    const bNameMatch = nodeXml.match(/<BuildingName>(.*?)<\/BuildingName>/);
+                    const hitsMatch = nodeXml.match(/<HitsPercentage>(.*?)<\/HitsPercentage>/);
 
-                    if (['Timber Grove', 'Quarry', 'Mine', 'Herb Patch'].includes(nodeType)) {
-                        await db.from("Resource_Nodes").upsert({
-                            holding_id: holdingDbId,
-                            node_type: nodeType,
-                            total_hits: hits
-                        }, { onConflict: 'holding_id,node_type' });
+                    if (bNameMatch && hitsMatch) {
+                        const nodeType = bNameMatch[1];
+                        const hits = parseInt(hitsMatch[1]);
+
+                        if (['Timber Grove', 'Quarry', 'Mine', 'Herb Patch'].includes(nodeType)) {
+                            await db.from("Resource_Nodes").upsert({
+                                holding_id: holdingDbId,
+                                node_type: nodeType,
+                                total_hits: hits
+                            }, { onConflict: 'holding_id,node_type' });
+                        }
                     }
                 }
             }
@@ -215,6 +285,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, ...result });
     } catch (e: any) {
         console.error("Trigger scrape error:", e);
-        return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            error: `${e.message} @ ${e.stack?.split('\n')[1] || 'unknown'}`
+        }, { status: 500 });
     }
 }

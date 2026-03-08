@@ -6,6 +6,7 @@ import {
     createTournament,
     Tournament,
 } from "./actions";
+import { ArrowLeft } from "lucide-react";
 
 const FORMAT_OPTIONS = ["Free For All", "1v1", "Team"];
 
@@ -129,13 +130,22 @@ export default function TournamentsPage() {
 
                 {/* Header */}
                 <header className="border-b border-white/10 pb-6 flex items-end justify-between flex-wrap gap-4">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-widest mb-2 drop-shadow-md">
-                            Clan <span className="text-amber-400">Tournaments</span>
-                        </h1>
-                        <p className="text-gray-400 text-lg">
-                            Organise intra-clan competitions. Any operative can create and run a tournament.
-                        </p>
+                    <div className="flex items-center gap-6 text-left">
+                        <Link
+                            href="/"
+                            className="p-2.5 translate-y-2 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10 group"
+                            title="Back to Command"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-amber-500" />
+                        </Link>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-widest mb-2 drop-shadow-md">
+                                Clan <span className="text-amber-400">Tournaments</span>
+                            </h1>
+                            <p className="text-gray-400 text-lg">
+                                Organise intra-clan competitions. Any operative can create and run a tournament.
+                            </p>
+                        </div>
                     </div>
                     <button
                         onClick={() => setShowCreate(true)}

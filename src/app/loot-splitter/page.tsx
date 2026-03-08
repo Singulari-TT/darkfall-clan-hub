@@ -139,11 +139,11 @@ export default function LootSplitter() {
     const splitPerPlayer = partySize > 0 ? Math.floor(totalPool / partySize) : 0;
 
     return (
-        <div className="min-h-screen bg-transparent text-gray-300 p-4 sm:p-8 font-sans selection:bg-[#5865F2]/30">
+        <div className="min-h-screen bg-transparent text-gray-300 p-4 sm:p-8 font-sans selection:bg-social-cobalt-dim">
             <div className="max-w-6xl mx-auto space-y-8 relative z-10">
-                <header className="border-b border-white/10 pb-6">
+                <header className="border-b border-surface-border pb-6">
                     <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-widest mb-2 drop-shadow-md">
-                        Loot Splitter <span className="text-[#5865F2]">Module</span>
+                        Loot Splitter <span className="text-social-cobalt">Module</span>
                     </h1>
                     <p className="text-gray-400 font-sans text-lg">Instant, calculation-free division of spoils for the operative party.</p>
                 </header>
@@ -153,18 +153,18 @@ export default function LootSplitter() {
                     <div className="lg:col-span-2 space-y-8">
 
                         {/* Party & Quick Setup */}
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                        <div className="bg-surface border border-surface-border rounded-card p-6 backdrop-blur-[--blur-glass] shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                                    <span className="text-[#5865F2]">👥</span> Party Configuration
+                                    <span className="text-social-cobalt">👥</span> Party Configuration
                                 </h2>
                             </div>
-                            <div className="flex bg-black/40 border border-white/10 rounded-xl p-4 items-center justify-between mb-6">
+                            <div className="flex bg-black/40 border border-surface-border rounded-xl p-4 items-center justify-between mb-6">
                                 <span className="text-gray-400 font-bold uppercase tracking-wider text-sm">Total Party Members:</span>
                                 <div className="flex items-center gap-4">
-                                    <button onClick={() => setPartySize(Math.max(1, partySize - 1))} className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xl font-bold flex items-center justify-center transition-all">-</button>
+                                    <button onClick={() => setPartySize(Math.max(1, partySize - 1))} className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-surface-border text-xl font-bold flex items-center justify-center transition-all">-</button>
                                     <span className="text-3xl font-black text-white w-12 text-center">{partySize}</span>
-                                    <button onClick={() => setPartySize(Math.min(15, partySize + 1))} className="w-10 h-10 rounded-lg bg-[#5865F2]/20 hover:bg-[#5865F2]/40 border border-[#5865F2]/30 text-[#5865F2] hover:text-white text-xl font-bold flex items-center justify-center transition-all">+</button>
+                                    <button onClick={() => setPartySize(Math.min(15, partySize + 1))} className="w-10 h-10 rounded-lg bg-social-cobalt-dim hover:bg-social-cobalt-dim*2 border border-social-cobalt-border text-social-cobalt hover:text-white text-xl font-bold flex items-center justify-center transition-all">+</button>
                                 </div>
                             </div>
 
@@ -178,7 +178,7 @@ export default function LootSplitter() {
                                                 type="text"
                                                 value={partyNames[i]}
                                                 onChange={(e) => updatePartyName(i, e.target.value)}
-                                                className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-white outline-none focus:border-[#5865F2]/50 transition-colors"
+                                                className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-white outline-none focus:border-social-cobalt-border transition-colors"
                                             />
                                         </div>
                                     ))}
@@ -188,18 +188,18 @@ export default function LootSplitter() {
 
                         {/* Image OCR Dropzone Component */}
                         <div
-                            className={`bg-white/5 border ${isScanning ? 'border-[#5865F2] shadow-[0_0_20px_rgba(88,101,242,0.3)]' : 'border-white/10'} border-dashed rounded-2xl p-8 backdrop-blur-xl text-center group hover:bg-white/10 hover:border-[#5865F2]/50 transition-all focus-within:border-[#5865F2] outline-none relative cursor-pointer`}
+                            className={`bg-surface border ${isScanning ? 'border-social-cobalt shadow-[0_0_20px_rgba(88,101,242,0.3)]' : 'border-surface-border'} border-dashed rounded-card p-8 backdrop-blur-[--blur-glass] text-center group hover:bg-surface-hover hover:border-social-cobalt-border transition-all focus-within:border-social-cobalt outline-none relative cursor-pointer`}
                             onPaste={handlePaste}
                             tabIndex={0}
                         >
                             {isScanning ? (
                                 <div className="flex flex-col items-center justify-center space-y-4 py-4">
-                                    <div className="w-12 h-12 rounded-full border-4 border-[#5865F2] border-t-transparent animate-spin mx-auto"></div>
-                                    <p className="text-[#5865F2] font-bold tracking-widest uppercase text-xs animate-pulse">{scanMessage}</p>
+                                    <div className="w-12 h-12 rounded-full border-4 border-social-cobalt border-t-transparent animate-spin mx-auto"></div>
+                                    <p className="text-social-cobalt font-bold tracking-widest uppercase text-xs animate-pulse">{scanMessage}</p>
                                 </div>
                             ) : (
                                 <>
-                                    <div className="w-16 h-16 mx-auto bg-[#5865F2]/10 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-[#5865F2]/20 transition-all">
+                                    <div className="w-16 h-16 mx-auto bg-social-cobalt-dim rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-social-cobalt-dim*2 transition-all">
                                         <span className="text-3xl">📸</span>
                                     </div>
                                     <h3 className="text-white font-bold text-lg mb-2">Paste Loot Screenshot (Click and CTRL+V)</h3>
@@ -233,8 +233,8 @@ export default function LootSplitter() {
                         </div>
 
                         {/* Loot Section */}
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
-                            <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                        <div className="bg-surface border border-surface-border rounded-card p-6 backdrop-blur-[--blur-glass] shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                            <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
                                 <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                                     <span className="text-amber-500">💰</span> Acquired Assets
                                 </h2>
@@ -252,7 +252,7 @@ export default function LootSplitter() {
                             <div className="space-y-3">
                                 {items.map((item, index) => (
                                     <div key={item.id} className="flex gap-3 items-start flex-wrap sm:flex-nowrap group">
-                                        <div className="flex-1 min-w-[200px] bg-black/40 border border-white/10 rounded-lg flex items-center px-3 focus-within:border-[#5865F2]/50 transition-colors">
+                                        <div className="flex-1 min-w-[200px] bg-black/40 border border-surface-border rounded-lg flex items-center px-3 focus-within:border-social-cobalt-border transition-colors">
                                             <input
                                                 type="text"
                                                 value={item.name}
@@ -261,7 +261,7 @@ export default function LootSplitter() {
                                                 className="bg-transparent border-none outline-none text-white w-full py-2 placeholder-gray-600 font-sans"
                                             />
                                         </div>
-                                        <div className="w-24 bg-black/40 border border-white/10 rounded-lg flex flex-col px-2 py-1 focus-within:border-[#5865F2]/50 transition-colors">
+                                        <div className="w-24 bg-black/40 border border-surface-border rounded-lg flex flex-col px-2 py-1 focus-within:border-social-cobalt-border transition-colors">
                                             <span className="text-[9px] uppercase tracking-widest text-gray-500 font-bold">Qty</span>
                                             <input
                                                 type="number"
@@ -270,7 +270,7 @@ export default function LootSplitter() {
                                                 className="bg-transparent border-none outline-none text-white w-full font-mono text-sm"
                                             />
                                         </div>
-                                        <div className="w-32 bg-black/40 border border-white/10 rounded-lg flex flex-col px-2 py-1 focus-within:border-amber-500/50 transition-colors">
+                                        <div className="w-32 bg-black/40 border border-surface-border rounded-lg flex flex-col px-2 py-1 focus-within:border-amber-500/50 transition-colors">
                                             <span className="text-[9px] uppercase tracking-widest text-amber-500/70 font-bold">Value Each</span>
                                             <input
                                                 type="number"
@@ -287,8 +287,8 @@ export default function LootSplitter() {
                                     </div>
                                 ))}
                             </div>
-                            <div className="mt-4 pt-4 border-t border-white/10">
-                                <button onClick={addItem} className="bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/30 text-[#5865F2] hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm w-full sm:w-auto">
+                            <div className="mt-4 pt-4 border-t border-surface-border">
+                                <button onClick={addItem} className="bg-social-cobalt-dim hover:bg-social-cobalt-dim*2 border border-social-cobalt-border text-social-cobalt hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm w-full sm:w-auto">
                                     + Add Item
                                 </button>
                             </div>
@@ -297,8 +297,8 @@ export default function LootSplitter() {
 
                     {/* Right Column: Breakdown */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl p-6 sticky top-24 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
-                            <h2 className="text-xl font-bold text-white tracking-tight mb-6 border-b border-white/10 pb-4">
+                        <div className="bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 sticky top-24 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+                            <h2 className="text-xl font-bold text-white tracking-tight mb-6 border-b border-surface-border pb-4">
                                 Distribution Ledger
                             </h2>
 
@@ -360,7 +360,7 @@ export default function LootSplitter() {
                             {/* Financial Cut Header */}
                             {totalPool > 0 && (
                                 <>
-                                    <div className="flex justify-between items-center pt-4 border-t border-white/10 mb-4">
+                                    <div className="flex justify-between items-center pt-4 border-t border-surface-border mb-4">
                                         <span className="text-white font-bold uppercase tracking-wider text-sm">Gross Yield:</span>
                                         <span className="text-amber-400 font-bold font-mono text-xl drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">{totalPool.toLocaleString()} g</span>
                                     </div>

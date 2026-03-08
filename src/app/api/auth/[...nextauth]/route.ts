@@ -71,9 +71,11 @@ export const authOptions = {
                 session.user.id = token.dbId as string;
                 (session.user as any).role = token.role as string;
                 (session.user as any).status = token.status as string;
-                (session.user as any).displayName = token.displayName as string | null;
+                // Fallback to Discord name if DB display_name is null
+                (session.user as any).displayName = token.displayName as string | null || session.user.name || "Unknown Operative";
             } else {
                 session.user.id = token.sub; // Fallback entirely if db query fails
+                (session.user as any).displayName = session.user.name || "Unknown Operative";
             }
             return session;
         }

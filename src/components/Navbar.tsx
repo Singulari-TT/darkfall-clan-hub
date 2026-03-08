@@ -40,17 +40,17 @@ export default function Navbar() {
     const isToolActive = toolItems.some(t => pathname === t.href);
 
     return (
-        <nav className="bg-[#0D1117]/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-[5000] shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        <nav className="bg-background/80 backdrop-blur-[--blur-glass] border-b border-surface-border sticky top-0 z-[5000] shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
 
                     {/* Logo */}
                     <div className="flex-shrink-0">
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#5865F2] to-[#4752C4] shadow-[0_0_15px_rgba(88,101,242,0.5)] flex items-center justify-center">
+                            <div className="w-8 h-8 rounded bg-gradient-to-br from-social-cobalt to-[#4752C4] shadow-[0_0_15px_rgba(88,101,242,0.5)] flex items-center justify-center transition-transform group-hover:scale-110">
                                 <span className="text-white font-bold tracking-tighter">DK</span>
                             </div>
-                            <span className="text-xl font-heading font-black text-white tracking-widest drop-shadow-sm group-hover:text-[#5865F2] transition-colors">
+                            <span className="text-xl font-heading font-black text-white tracking-widest drop-shadow-sm group-hover:text-social-cobalt transition-colors">
                                 DREADKREW
                             </span>
                         </Link>
@@ -70,8 +70,8 @@ export default function Navbar() {
                                     key={item.href}
                                     href={item.href}
                                     className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all border ${isActive
-                                        ? "bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
-                                        : "text-gray-400 hover:text-white hover:bg-white/5 border-transparent"
+                                        ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
+                                        : "text-gray-400 hover:text-white hover:bg-surface-hover border-transparent"
                                         }`}
                                 >
                                     <span className={`transition-transform ${isActive ? "scale-110" : ""}`}>{item.icon}</span>
@@ -84,8 +84,8 @@ export default function Navbar() {
                         <div className="relative group">
                             <button
                                 className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all border ${isToolActive
-                                    ? "bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30 shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
-                                    : "text-gray-400 hover:text-white hover:bg-white/5 border-transparent"
+                                    ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border shadow-[inset_0_0_15px_rgba(88,101,242,0.1)]"
+                                    : "text-gray-400 hover:text-white hover:bg-surface-hover border-transparent"
                                     }`}
                             >
                                 <span>🔧</span>
@@ -100,7 +100,7 @@ export default function Navbar() {
 
                             {/* Dropdown */}
                             <div className="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 translate-y-1 group-hover:translate-y-0">
-                                <div className="bg-[#0D1117]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.7)] overflow-hidden p-1 w-48">
+                                <div className="bg-background/95 backdrop-blur-xl border border-surface-border rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.7)] overflow-hidden p-1 w-48">
                                     {toolItems.map((item) => {
                                         const isActive = pathname === item.href;
                                         return (
@@ -108,8 +108,8 @@ export default function Navbar() {
                                                 key={item.href}
                                                 href={item.href}
                                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                                                    ? "bg-[#5865F2]/15 text-[#5865F2]"
-                                                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                                                    ? "bg-social-cobalt-dim text-social-cobalt"
+                                                    : "text-gray-400 hover:text-white hover:bg-surface-hover"
                                                     }`}
                                             >
                                                 <span className="text-base">{item.icon}</span>
@@ -129,7 +129,7 @@ export default function Navbar() {
                         </span>
                         <button
                             onClick={() => signOut({ callbackUrl: "/login" })}
-                            className="text-xs font-bold text-gray-500 hover:text-white bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/50 px-3 py-2 rounded-lg transition-all"
+                            className="text-xs font-bold text-gray-500 hover:text-white bg-surface hover:bg-red-500/20 border border-surface-border hover:border-red-500/50 px-3 py-2 rounded-lg transition-all"
                         >
                             Log Out
                         </button>

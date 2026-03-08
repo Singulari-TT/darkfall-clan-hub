@@ -87,11 +87,11 @@ export default function GoalsPage() {
 
     const getPriorityColor = (priority: string) => {
         switch (priority) {
-            case 'Critical': return 'text-rose-400 bg-rose-500/10 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.3)]';
+            case 'Critical': return 'text-command-blood-bright bg-command-blood-dim border-command-blood-border shadow-[0_0_10px_rgba(139,0,0,0.3)]';
             case 'High': return 'text-orange-400 bg-orange-500/10 border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.3)]';
-            case 'Medium': return 'text-[#5865F2] bg-[#5865F2]/10 border-[#5865F2]/30';
+            case 'Medium': return 'text-social-cobalt bg-social-cobalt-dim border-social-cobalt-border';
             case 'Low': return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-            default: return 'text-gray-400 bg-white/5 border-white/10';
+            default: return 'text-gray-400 bg-surface border-surface-border';
         }
     };
 
@@ -99,17 +99,17 @@ export default function GoalsPage() {
         const columnGoals = goals.filter(g => g.status === statusHeading);
 
         return (
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-5 min-h-[600px] flex flex-col backdrop-blur-xl relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
-                    <h2 className="text-sm font-bold tracking-widest uppercase text-gray-300">{statusHeading}</h2>
-                    <span className="text-white font-bold font-mono bg-[#5865F2]/20 border border-[#5865F2]/50 px-2 py-0.5 rounded text-xs shadow-inner">
+            <div className="rounded-card border border-surface-border bg-surface p-5 min-h-[600px] flex flex-col backdrop-blur-[--blur-glass] relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-surface-border">
+                    <h2 className="text-sm font-bold tracking-widest uppercase text-gray-400">{statusHeading}</h2>
+                    <span className="text-white font-bold font-mono bg-social-cobalt-dim border border-social-cobalt-border px-2 py-0.5 rounded text-xs shadow-inner">
                         {columnGoals.length}
                     </span>
                 </div>
 
                 <div className="space-y-6 flex-1">
                     {columnGoals.map(goal => (
-                        <div key={goal.id} className="bg-white/5 border border-white/10 rounded-xl shadow-lg relative overflow-hidden group hover:border-[#5865F2]/50 transition-colors backdrop-blur-md">
+                        <div key={goal.id} className="bg-white/5 border border-surface-border rounded-xl shadow-lg relative overflow-hidden group hover:border-social-cobalt-border transition-colors backdrop-blur-md">
 
                             {goal.image_url && (
                                 <div className="w-full h-32 overflow-hidden border-b border-white/5 relative">
@@ -125,7 +125,7 @@ export default function GoalsPage() {
                                             {goal.priority}
                                         </span>
                                         {goal.project_name && (
-                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-[#5865F2]/30 bg-[#5865F2]/10 text-[#5865F2]">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-social-cobalt-border bg-social-cobalt-dim text-social-cobalt">
                                                 {goal.project_name}
                                             </span>
                                         )}
@@ -152,10 +152,10 @@ export default function GoalsPage() {
                                                     <div key={item}>
                                                         <div className="flex justify-between text-xs font-mono mb-1">
                                                             <span className="text-gray-300">{item}</span>
-                                                            <span className={pct >= 100 ? "text-emerald-400" : "text-[#5865F2]"}>{current} / {target}</span>
+                                                            <span className={pct >= 100 ? "text-emerald-400" : "text-social-cobalt"}>{current} / {target}</span>
                                                         </div>
                                                         <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                                                            <div className={`h-full ${pct >= 100 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-[#5865F2] shadow-[0_0_10px_rgba(88,101,242,0.5)]'}`} style={{ width: `${pct}%` }}></div>
+                                                            <div className={`h-full ${pct >= 100 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-social-cobalt shadow-[0_0_10px_rgba(88,101,242,0.5)]'}`} style={{ width: `${pct}%` }}></div>
                                                         </div>
                                                     </div>
                                                 );
@@ -175,7 +175,7 @@ export default function GoalsPage() {
                                                         <button type="button" onClick={() => setActiveContributeGoal(null)} className="text-gray-500 hover:text-white px-2 text-xs">✕</button>
                                                     </form>
                                                 ) : (
-                                                    <button onClick={() => setActiveContributeGoal(goal.id)} className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest text-[#5865F2] transition-colors shadow-sm">
+                                                    <button onClick={() => setActiveContributeGoal(goal.id)} className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[10px] font-bold uppercase tracking-widest text-social-cobalt transition-colors shadow-sm">
                                                         Contribute Payload
                                                     </button>
                                                 )}
@@ -199,12 +199,12 @@ export default function GoalsPage() {
                                     {isAdmin && (
                                         <div className="flex gap-2">
                                             {statusHeading !== 'Not Started' && (
-                                                <button onClick={() => handleUpdateStatus(goal.id, statusHeading === 'Completed' ? 'In Progress' : 'Not Started')} className="p-1.5 rounded-md bg-white/5 border border-white/10 hover:border-[#5865F2]/50 text-gray-400 hover:text-white transition-all shadow-sm" title="Move Backwards">
+                                                <button onClick={() => handleUpdateStatus(goal.id, statusHeading === 'Completed' ? 'In Progress' : 'Not Started')} className="p-1.5 rounded-md bg-white/5 border border-surface-border hover:border-social-cobalt-border text-gray-400 hover:text-white transition-all shadow-sm" title="Move Backwards">
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                                                 </button>
                                             )}
                                             {statusHeading !== 'Completed' && (
-                                                <button onClick={() => handleUpdateStatus(goal.id, statusHeading === 'Not Started' ? 'In Progress' : 'Completed')} className="p-1.5 rounded-md bg-[#5865F2]/20 border border-[#5865F2]/50 hover:bg-[#5865F2] hover:text-white text-[#5865F2] transition-all shadow-sm" title="Advance Status">
+                                                <button onClick={() => handleUpdateStatus(goal.id, statusHeading === 'Not Started' ? 'In Progress' : 'Completed')} className="p-1.5 rounded-md bg-social-cobalt-dim border border-social-cobalt-border hover:bg-social-cobalt hover:text-white text-social-cobalt transition-all shadow-sm" title="Advance Status">
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                                                 </button>
                                             )}
@@ -243,7 +243,7 @@ export default function GoalsPage() {
 
                         <div className="relative z-10">
                             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
-                                Clan <span className="text-[#5865F2]">Directives</span>
+                                Clan <span className="text-social-cobalt">Directives</span>
                             </h1>
                             <p className="text-gray-400 font-sans text-lg">Coordinate strategic goals and trace supply lines.</p>
                         </div>
@@ -251,7 +251,7 @@ export default function GoalsPage() {
                         {isAdmin && (
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="relative z-10 w-full sm:w-auto bg-[#5865F2]/90 hover:bg-[#5865F2] text-white font-bold tracking-widest uppercase py-3 px-8 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.3)] transition-all hover:-translate-y-0.5 border border-[#5865F2]"
+                                className="relative z-10 w-full sm:w-auto bg-social-cobalt/90 hover:bg-social-cobalt text-white font-bold tracking-widest uppercase py-3 px-8 rounded-card shadow-[0_4px_20px_rgba(88,101,242,0.3)] transition-all hover:-translate-y-0.5 border border-social-cobalt"
                             >
                                 Issue Directive
                             </button>
@@ -286,7 +286,7 @@ export default function GoalsPage() {
                                             <span className="text-sm font-bold text-gray-200">{c.Users?.display_name || "Unknown"}</span>
                                             <span className="text-[10px] text-gray-500 font-mono bg-white/5 px-2 py-0.5 rounded-md">{new Date(c.created_at).toLocaleDateString()}</span>
                                         </div>
-                                        <p className="text-[10px] text-[#5865F2] font-bold uppercase tracking-wider bg-[#5865F2]/10 border border-[#5865F2]/20 px-1.5 py-0.5 rounded inline-block mb-3 truncate max-w-[200px]">{c.Clan_Goals?.title || "Unknown Goal"}</p>
+                                        <p className="text-[10px] text-social-cobalt font-bold uppercase tracking-wider bg-social-cobalt-dim border border-social-cobalt-border px-1.5 py-0.5 rounded inline-block mb-3 truncate max-w-[200px]">{c.Clan_Goals?.title || "Unknown Goal"}</p>
 
                                         <div className="text-sm font-mono text-emerald-400 bg-white/5 border border-white/5 rounded-lg p-3 mb-4 shadow-inner">
                                             + {c.amount} {c.ingredient_name}

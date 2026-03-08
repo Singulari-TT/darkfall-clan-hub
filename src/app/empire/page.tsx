@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Hammer, Trees, Gem, Mountain, Activity, Shield, MapPin, TrendingUp, Loader2, Zap, RefreshCw, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Hammer, Trees, Gem, Mountain, Activity, Shield, MapPin, TrendingUp, Loader2, Zap, RefreshCw, Clock, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "next-auth/react";
 
@@ -125,7 +126,7 @@ export default function EmpirePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
+            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 animate-spin text-amber-500" />
                 <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Accessing Imperial Registry...</span>
             </div>
@@ -133,12 +134,21 @@ export default function EmpirePage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#020617] p-6 lg:p-10">
+        <div className="min-h-screen bg-transparent p-6 lg:p-10 selection:bg-social-cobalt-dim">
             <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <div className="flex items-center gap-4 mb-2">
-                        <Shield className="w-8 h-8 text-amber-500" />
-                        <h1 className="text-3xl font-black text-white tracking-[0.2em] uppercase">Clan <span className="text-amber-500">Empire</span></h1>
+                <div className="flex items-center gap-6">
+                    <Link
+                        href="/"
+                        className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10 group"
+                        title="Back to Command"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-amber-500" />
+                    </Link>
+                    <div>
+                        <div className="flex items-center gap-4 mb-2">
+                            <Shield className="w-8 h-8 text-amber-500" />
+                            <h1 className="text-3xl font-black text-white tracking-[0.2em] uppercase">Clan <span className="text-amber-500">Empire</span></h1>
+                        </div>
                     </div>
                     <div className="flex flex-col gap-1">
                         <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.3em]">Imperial Holding & Resource Logistics Terminal</p>
@@ -155,8 +165,8 @@ export default function EmpirePage() {
                     <div className="flex flex-col items-end gap-3">
                         {statusMessage && (
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-widest animate-in fade-in slide-in-from-top-2 duration-300 ${statusMessage.type === 'success'
-                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
-                                    : 'bg-red-500/10 border-red-500/30 text-red-500'
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                : 'bg-red-500/10 border-red-500/30 text-red-500'
                                 }`}>
                                 {statusMessage.type === 'success' ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                                 {statusMessage.text}
@@ -165,7 +175,7 @@ export default function EmpirePage() {
                         <button
                             onClick={handleRefresh}
                             disabled={refreshing}
-                            className="group relative flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/40 px-4 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="group relative flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/40 px-4 py-2 rounded-card transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <RefreshCw className={`w-4 h-4 text-amber-500 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
                             <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">Refresh Sync</span>
@@ -176,7 +186,7 @@ export default function EmpirePage() {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {holdings.map((holding) => (
-                    <div key={holding.id} className="group relative bg-[#0e0c10] border border-white/5 rounded-2xl overflow-hidden shadow-2xl hover:border-amber-500/30 transition-all duration-500">
+                    <div key={holding.id} className="group relative bg-surface border border-surface-border rounded-card overflow-hidden shadow-2xl hover:border-amber-500/30 transition-all duration-500 backdrop-blur-[--blur-glass]">
                         {/* Background Image / Placeholder */}
                         <div className="absolute inset-0 opacity-10 grayscale group-hover:grayscale-0 group-hover:opacity-20 transition-all duration-700">
                             {holding.image_url ? (
@@ -202,7 +212,7 @@ export default function EmpirePage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 {holding.nodes.map((node, i) => (
-                                    <div key={i} className="bg-black/40 border border-white/5 rounded-xl p-5 backdrop-blur-sm">
+                                    <div key={i} className="bg-black/20 border border-white/5 rounded-xl p-5 backdrop-blur-sm">
                                         <div className="flex items-center gap-3 mb-3">
                                             {node.type === 'Timber Grove' && <Trees className="w-4 h-4 text-emerald-500" />}
                                             {node.type === 'Mine' && <Mountain className="w-4 h-4 text-gray-400" />}
@@ -244,7 +254,7 @@ export default function EmpirePage() {
                 {/* Hardcoded yield note */}
             </div>
 
-            <footer className="mt-12 pt-6 border-t border-white/5 text-center">
+            <footer className="mt-12 pt-6 border-t border-surface-border text-center">
                 <p className="text-[9px] text-gray-600 uppercase tracking-[0.4em] font-mono italic">
                     All yields are estimations based on neural news reel parsing (Milestone: 1, 10, 20...)
                 </p>

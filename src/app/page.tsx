@@ -96,7 +96,7 @@ export default function Home() {
         <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h1 className="text-4xl md:text-5xl font-heading font-black text-white tracking-widest mb-2 drop-shadow-md">
-              {greeting}, <span className="text-[#5865F2]">{session?.user?.name || "Friend"}</span>
+              {greeting}, <span className="text-social-cobalt">{session?.user?.name || "Friend"}</span>
             </h1>
             <p className="text-lg text-gray-400 max-w-2xl font-sans">
               Central command console. Your data feeds are currently synced and tracking live metrics.
@@ -105,7 +105,7 @@ export default function Home() {
 
           {/* Quick Stats - Post-Neumorphism style */}
           <div className="flex gap-4">
-            <Link href="/goals" className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 hover:border-white/20 hover:-translate-y-1 transition-all group cursor-pointer duration-300">
+            <Link href="/goals" className="bg-surface border border-surface-border rounded-card p-4 flex items-center gap-4 backdrop-blur-[--blur-glass] shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-surface-hover hover:border-surface-border-bright hover:-translate-y-1 transition-all group cursor-pointer duration-300">
               <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 group-hover:bg-emerald-500/30 transition-colors shadow-[0_0_15px_rgba(16,185,129,0.2)] inset-0">
                 <svg className="w-6 h-6 text-emerald-400 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
               </div>
@@ -115,10 +115,10 @@ export default function Home() {
               </div>
             </Link>
 
-            <Link href="/tavern" className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 hover:border-[#5865F2]/50 hover:-translate-y-1 transition-all group cursor-pointer duration-300">
-              <div className="w-12 h-12 rounded-xl bg-[#5865F2]/20 flex items-center justify-center border border-[#5865F2]/30 relative shadow-[0_0_15px_rgba(88,101,242,0.2)]">
-                <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0D1117] group-hover:border-[#5865F2]/50 animate-[pulse_2s_infinite]"></div>
-                <svg className="w-6 h-6 text-[#5865F2] drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            <Link href="/tavern" className="bg-surface border border-surface-border rounded-card p-4 flex items-center gap-4 backdrop-blur-[--blur-glass] shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-surface-hover hover:border-social-cobalt-border hover:-translate-y-1 transition-all group cursor-pointer duration-300">
+              <div className="w-12 h-12 rounded-xl bg-social-cobalt-dim flex items-center justify-center border border-social-cobalt-border relative shadow-[0_0_15px_rgba(88,101,242,0.2)]">
+                <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background group-hover:border-social-cobalt-border animate-[pulse_2s_infinite]"></div>
+                <svg className="w-6 h-6 text-social-cobalt drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
               </div>
               <div className="pr-2">
                 <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-0.5">Members Logged In</p>
@@ -137,9 +137,9 @@ export default function Home() {
 
           {/* Base Card Template with Glassmorphism */}
           {/* Card: Tavern */}
-          <Link href="/tavern" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-[#5865F2]/30 hover:shadow-[0_8px_30px_rgba(88,101,242,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#5865F2]/10 rounded-full blur-3xl group-hover:bg-[#5865F2]/20 transition-colors -mr-10 -mt-10"></div>
-            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-[#5865F2]/10 flex items-center justify-center border border-[#5865F2]/20 group-hover:bg-[#5865F2]/20 group-hover:scale-110 transition-all shadow-inner">
+          <Link href="/tavern" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-social-cobalt-border hover:shadow-[0_8px_30px_rgba(88,101,242,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-social-cobalt-dim rounded-full blur-3xl group-hover:bg-social-cobalt-dim*2 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-social-cobalt-dim flex items-center justify-center border border-social-cobalt-border group-hover:bg-social-cobalt-dim*2 group-hover:scale-110 transition-all shadow-inner">
               <span className="text-2xl drop-shadow-md">🍺</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
@@ -149,9 +149,9 @@ export default function Home() {
           </Link>
 
           {/* Card: Vault */}
-          <Link href="/vault" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-amber-500/30 hover:shadow-[0_8px_30px_rgb(245,158,11,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors -mr-10 -mt-10"></div>
-            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500/20 group-hover:scale-110 transition-all shadow-inner">
+          <Link href="/vault" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-elite-gold-border hover:shadow-[0_8px_30px_rgb(245,158,11,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-elite-gold-dim rounded-full blur-3xl group-hover:bg-elite-gold-dim*2 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-elite-gold-dim flex items-center justify-center border border-elite-gold-border group-hover:bg-elite-gold-dim*2 group-hover:scale-110 transition-all shadow-inner">
               <span className="text-2xl drop-shadow-md">💰</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
@@ -161,7 +161,7 @@ export default function Home() {
           </Link>
 
           {/* Card: Intel */}
-          <Link href="/intel" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-purple-500/30 hover:shadow-[0_8px_30px_rgb(168,85,247,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+          <Link href="/intel" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-purple-500/30 hover:shadow-[0_8px_30px_rgb(168,85,247,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-colors -mr-10 -mt-10"></div>
             <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all shadow-inner">
               <span className="text-2xl drop-shadow-md">📜</span>
@@ -173,7 +173,7 @@ export default function Home() {
           </Link>
 
           {/* Card: Map */}
-          <Link href="/map" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(16,185,129,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+          <Link href="/map" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(16,185,129,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-colors -mr-10 -mt-10"></div>
             <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all shadow-inner">
               <span className="text-2xl drop-shadow-md">🗺️</span>
@@ -185,9 +185,9 @@ export default function Home() {
           </Link>
 
           {/* Card: Database */}
-          <Link href="/database" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-[#5865F2]/30 hover:shadow-[0_8px_30px_rgba(88,101,242,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#5865F2]/10 rounded-full blur-3xl group-hover:bg-[#5865F2]/20 transition-colors -mr-10 -mt-10"></div>
-            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-[#5865F2]/10 flex items-center justify-center border border-[#5865F2]/20 group-hover:bg-[#5865F2]/20 group-hover:scale-110 transition-all shadow-inner">
+          <Link href="/database" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-social-cobalt-border hover:shadow-[0_8px_30px_rgba(88,101,242,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-social-cobalt-dim rounded-full blur-3xl group-hover:bg-social-cobalt-dim*2 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-social-cobalt-dim flex items-center justify-center border border-social-cobalt-border group-hover:bg-social-cobalt-dim*2 group-hover:scale-110 transition-all shadow-inner">
               <span className="text-2xl drop-shadow-md">📚</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
@@ -197,10 +197,10 @@ export default function Home() {
           </Link>
 
           {/* Card: Marketplace */}
-          <Link href="/bank-market" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-orange-500/30 hover:shadow-[0_8px_30px_rgb(249,115,22,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+          <Link href="/bank-market" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-orange-500/30 hover:shadow-[0_8px_30px_rgb(249,115,22,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-colors -mr-10 -mt-10"></div>
             <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:bg-orange-500/20 group-hover:scale-110 transition-all shadow-inner">
-              <span className="text-2xl drop-shadow-md">⚖️</span>
+              <span className="text-2xl drop-shadow-md">秤</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
               <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Bank Market</h2>
@@ -209,9 +209,9 @@ export default function Home() {
           </Link>
 
           {/* Card: Tournaments */}
-          <Link href="/tournaments" className="group relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-amber-500/30 hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-colors -mr-10 -mt-10"></div>
-            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500/20 group-hover:scale-110 transition-all shadow-inner">
+          <Link href="/tournaments" className="group relative overflow-hidden bg-surface backdrop-blur-[--blur-glass] border border-surface-border rounded-card p-6 hover:bg-surface-hover hover:border-elite-gold-border hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] hover:-translate-y-1 transition-all duration-300 flex items-start gap-5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-elite-gold-dim rounded-full blur-3xl group-hover:bg-elite-gold-dim*2 transition-colors -mr-10 -mt-10"></div>
+            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-elite-gold-dim flex items-center justify-center border border-elite-gold-border group-hover:bg-elite-gold-dim*2 group-hover:scale-110 transition-all shadow-inner">
               <span className="text-2xl drop-shadow-md">⚔️</span>
             </div>
             <div className="flex flex-col justify-center h-full z-10">
@@ -296,7 +296,7 @@ export default function Home() {
                 ) : (
                   <button
                     onClick={(e) => { e.preventDefault(); setIsEditingProject(true); }}
-                    className="opacity-0 group-hover:opacity-100 bg-[#0D1117]/80 hover:bg-[#5865F2]/20 border border-white/10 hover:border-[#5865F2]/50 text-gray-400 hover:text-[#5865F2] p-2 rounded-xl transition-all backdrop-blur-md shadow-lg cursor-pointer transform hover:scale-110"
+                    className="opacity-0 group-hover:opacity-100 bg-background/80 hover:bg-social-cobalt-dim border border-surface-border hover:border-social-cobalt-border text-gray-400 hover:text-social-cobalt p-2 rounded-xl transition-all backdrop-blur-md shadow-lg cursor-pointer transform hover:scale-110"
                     title="Set Featured Project"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>

@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default async function Vault() {
     const session = await getServerSession(authOptions);
@@ -17,11 +18,18 @@ export default async function Vault() {
     }
 
     return (
-        <div className="min-h-screen bg-transparent text-gray-200 p-8 font-sans selection:bg-[#5865F2]/30">
+        <div className="min-h-screen bg-transparent text-gray-200 p-4 sm:p-8 font-sans selection:bg-[#5865F2]/30">
             <div className="max-w-7xl mx-auto space-y-10 relative z-10">
-                <header className="border-b border-white/10 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <header className="border-b border-white/10 pb-8 flex items-center gap-6">
+                    <Link
+                        href="/"
+                        className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-social-cobalt-border group"
+                        title="Back to Command"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-social-cobalt" />
+                    </Link>
                     <div>
-                        <h1 className="text-5xl font-black text-white drop-shadow-sm tracking-tight mb-2">
+                        <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-sm tracking-tight mb-2 leading-tight">
                             Clan <span className="text-[#5865F2]">Vault</span>
                         </h1>
                         <p className="text-gray-400 text-lg font-medium">Clan Treasury and Current Material Goals</p>

@@ -15,6 +15,8 @@ import {
     TournamentMatch,
 } from "../actions";
 import TournamentBracket from "../components/TournamentBracket";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 const statusStyle: Record<string, string> = {
     Open: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
@@ -161,13 +163,22 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
         <div className="min-h-screen bg-transparent text-gray-300 p-4 sm:p-8 font-sans selection:bg-amber-500/20">
             <div className="max-w-5xl mx-auto space-y-8 relative z-10">
 
-                {/* Back */}
-                <button
-                    onClick={() => router.push("/tournaments")}
-                    className="text-sm text-gray-500 hover:text-amber-400 transition-colors flex items-center gap-1.5"
-                >
-                    ← Back to Tournaments
-                </button>
+                {/* Back Navigation */}
+                <div className="flex items-center gap-6">
+                    <Link
+                        href="/"
+                        className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10 group"
+                        title="Back to Command"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-amber-500" />
+                    </Link>
+                    <button
+                        onClick={() => router.push("/tournaments")}
+                        className="text-sm text-gray-500 hover:text-amber-400 transition-colors flex items-center gap-1.5"
+                    >
+                        ← Back to Tournaments
+                    </button>
+                </div>
 
                 {/* Error */}
                 {error && (

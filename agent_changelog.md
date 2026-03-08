@@ -1,3 +1,36 @@
+## [2026-03-07] High Command Dashboard: Centralized Authorization Hub
+- **Agent Focus:** Administrative Oversight & Security Automation
+- **Changes Made:**
+  - **High Command Dashboard**: Overhauled `admin/identities` into a dual-mode Command Center.
+  - **Recruitment Queue**: Implemented a "Pending Approvals" manager with one-click **Activate Member** and **Deny Entry** actions.
+  - **Roster Verification Machine**: Created a verification helper that cross-references new characters against the `ExternalClanRosters` ("Dreadkrew"), providing "High Confidence" indicators for legitimate members.
+  - **System Vitality Monitors**: Integrated live heartbeat sensors into the Settings page to track the success/fail health of the Roster, Gank, and News Reel scrapers.
+  - **Admin Navigation**: Updated the `AdminSidebar` with direct links to "High Command" and "System Vitality".
+  - **Auth Gating**: Wired up member activation to NextAuth status, ensuring recruits are blocked until an Officer authorizes their soul record.
+- **SQL Requirement:** Applied `vitality_config.sql`.
+- **Pending:** Automatic Discord Role syncing.
+
+## [2026-03-07] Dreadkrew Dossier Enrichment: Tactical Metrics
+- **Agent Focus:** Personalized Combat Data & Dossier Intelligence
+- **Changes Made:**
+  - **Tactical Metric Schema**: Expanded the `Characters` table with dedicated columns for `last_gank_given`, `last_gank_received`, `last_online`, and `last_harvest`.
+  - **Combat Event Mapping**: Refactored `sync-rosters.js` (global gank sync) to automatically identify and update the lethal/survival stats of registered clan members.
+  - **Industrial Log Tracking**: Updated `scrape_harvests.js` (news reel scraper) to capture individual member harvest milestones (Timber, Ore, Stone) and map them to their dossiers.
+  - **Dossier "Tactical Pulse"**: Implemented a real-time metrics grid on the `/profile` page. Members can now see their most recent lethality, survival, online status, and industry activity at a glance.
+  - **Premium UI**: Integrated `lucide-react` luxury icons (Sword, Shield, Activity, Hammer) and glassmorphic stats cards to match the Dreadkrew aesthetic.
+- **SQL Requirement:** Applied `tactical_metrics.sql` migration.
+- **Pending:** Integration of "Search & Filter" for dossiers.
+
+## [2026-03-07] Live Site Stability & Security Hardening
+- **Agent Focus:** Error Resolution, Data Integrity & Security
+- **Changes Made:**
+  - **Supabase Key Audit**: Identified and documented a critical misconfiguration where the `SERVICE_ROLE_KEY` was being used as the `ANON_KEY`. Added a safety warning in `src/lib/supabase.ts` to prevent future leaks.
+  - **Table Standardisation**: Normalized all Tavern actions to use the lowercase `tavern_posts` table, resolving inconsistencies between PascalCase and lowercase naming conventions.
+  - **Identity Fallbacks**: Implemented robust session fallbacks in `NextAuth` callbacks and UI components. System now correctly displays Discord names/ids when database `display_name` fields are null, eliminating "Unknown Operative" placeholders.
+  - **Profile Resiliency**: Fixed display logic in the `/profile` dossier to ensure authenticated users always see their identity, even during initial data hydration.
+- **SQL Requirement:** None (fixing existing inconsistencies).
+- **Pending:** User must rotate/replace the `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` with the actual public key.
+
 ## [2026-03-06] Roster Intelligence Automation & Live Service Fixes
 - **Agent Focus:** Automation, Database Schema Resilience & UI Stability
 - **Changes Made:**

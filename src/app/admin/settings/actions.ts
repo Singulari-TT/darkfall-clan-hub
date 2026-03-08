@@ -62,3 +62,19 @@ export async function updateSystemSettings(marketUrl: string, opsUrl: string, in
 
     return true;
 }
+
+export async function fetchSystemVitality() {
+    await verifyAdmin();
+
+    const { data, error } = await supabaseAdmin
+        .from("SystemConfig")
+        .select("key, updated_at")
+        .in("key", ["last_roster_sync", "last_gank_intel_sync", "last_harvest_scraper_sync", "members_logged_in"]);
+
+    if (error) {
+        console.error("Error fetching vitality:", error);
+        return [];
+    }
+
+    return data;
+}

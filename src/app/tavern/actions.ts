@@ -36,7 +36,7 @@ export async function createTavernPost(message: string, color: string): Promise<
 
     const authorName = (session.user as any).displayName || session.user.name || "Anonymous";
 
-    const { error } = await supabase.from("Tavern_Posts").insert({
+    const { error } = await supabase.from("tavern_posts").insert({
         author_discord_id: session.user.id,
         author_name: authorName,
         message: message.trim(),
@@ -55,7 +55,7 @@ export async function deleteTavernPost(id: string): Promise<{ success: boolean; 
     const isAdmin = (session.user as any).role === "Admin";
 
     // Only allow deleting own posts (or admin can delete any)
-    const query = supabase.from("Tavern_Posts").delete().eq("id", id);
+    const query = supabase.from("tavern_posts").delete().eq("id", id);
     if (!isAdmin) query.eq("author_discord_id", session.user.id);
 
     const { error } = await query;

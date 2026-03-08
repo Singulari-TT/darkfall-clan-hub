@@ -24,13 +24,21 @@ export async function POST() {
         const nameRegex = /^([\s\S]*?)\s*<span/;
         const clanRegex = /<span[^>]*class="clanname-minimal"[^>]*>(.*?)<\/span>/;
 
-        const clans: Record<string, { members: Record<string, { lastSeen: string, count: number }>, totalActivity: number }> = {};
+        const clans: Record<string, { members: Record<string, { lastSeen: string, count: number, lastGiven?: string, lastGivenOpponent?: string, lastReceived?: string, lastReceivedOpponent?: string }>, totalActivity: number }> = {};
 
         let match;
         while ((match = gankRowRegex.exec(html)) !== null) {
             const [_, timeStr, killerHtml, victimHtml] = match;
 
-            const processCell = (cellHtml: string) => {
+            const extractName = (cellHtml: string) => {
+                const nameMatch = cellHtml.match(nameRegex);
+                return nameMatch ? nameMatch[1].trim() : null;
+            };
+
+            const killerName = extractName(killerHtml);
+            const victimName = extractName(victimHtml);
+
+            const processCell = (cellHtml: string, isKiller: boolean, opponentName: string | null) => {
                 const nameMatch = cellHtml.match(nameRegex);
                 const clanMatch = cellHtml.match(clanRegex);
 
@@ -48,11 +56,19 @@ export async function POST() {
 
                     clans[clan].members[name].count++;
                     clans[clan].totalActivity++;
+
+                    if (isKiller) {
+                        clans[clan].members[name].lastGiven = timeStr.trim();
+                        clans[clan].members[name].lastGivenOpponent = opponentName || "Unknown";
+                    } else {
+                        clans[clan].members[name].lastReceived = timeStr.trim();
+                        clans[clan].members[name].lastReceivedOpponent = opponentName || "Unknown";
+                    }
                 }
             };
 
-            processCell(killerHtml);
-            processCell(victimHtml);
+            processCell(killerHtml, true, victimName);
+            processCell(victimHtml, false, killerName);
         }
 
         // Prepare data for upsert
@@ -85,6 +101,30 @@ export async function POST() {
         if (upsertError) {
             console.error("Upsert Error:", upsertError);
             throw new Error(`Database upsert failed: ${upsertError.message}`);
+        }
+
+        // Update individual Dreadkrew character metrics
+        const dkInfo = clans['Dreadkrew'];
+        if (dkInfo) {
+            for (const [name, data] of Object.entries(dkInfo.members)) {
+                const updates: any = {};
+                // If they appeared in this feed, we update their gank timestamps
+                if (data.lastGiven) {
+                    updates.last_gank_given = new Date().toISOString();
+                    updates.last_gank_opponent_given = data.lastGivenOpponent;
+                }
+                if (data.lastReceived) {
+                    updates.last_gank_received = new Date().toISOString();
+                    updates.last_gank_opponent_received = data.lastReceivedOpponent;
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    await supabaseAdmin
+                        .from("Characters")
+                        .update(updates)
+                        .eq("name", name);
+                }
+            }
         }
 
         return NextResponse.json({

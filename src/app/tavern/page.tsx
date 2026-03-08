@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import { Pinboard } from "./Pinboard";
 import { fetchTavernPosts } from "./actions";
+import { ArrowLeft } from "lucide-react";
 
 export default async function TavernPage() {
     const session = await getServerSession(authOptions);
@@ -36,13 +37,22 @@ export default async function TavernPage() {
 
                 {/* Header */}
                 <header className="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-widest mb-2 drop-shadow-md uppercase">
-                            The <span className="text-[#5865F2]">Tavern</span>
-                        </h1>
-                        <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">
-                            Active operatives · Clan bulletin board · Off-duty comms
-                        </p>
+                    <div className="flex items-center gap-6">
+                        <Link
+                            href="/"
+                            className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10 group"
+                            title="Back to Command"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-[#5865F2]" />
+                        </Link>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-widest mb-2 drop-shadow-md uppercase">
+                                The <span className="text-[#5865F2]">Tavern</span>
+                            </h1>
+                            <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">
+                                Active operatives · Clan bulletin board · Off-duty comms
+                            </p>
+                        </div>
                     </div>
                     <Link
                         href="/profile"
@@ -90,28 +100,28 @@ export default async function TavernPage() {
                                 return (
                                     <div
                                         key={user.id}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all group ${isCurrentUser
-                                            ? "bg-[#5865F2]/10 border-[#5865F2]/30"
-                                            : "bg-white/3 border-white/5 hover:bg-white/5 hover:border-white/10"
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-card border transition-all group backdrop-blur-[--blur-glass] ${isCurrentUser
+                                            ? "bg-social-cobalt-dim border-social-cobalt-border"
+                                            : "bg-surface border-surface-border hover:bg-surface-hover hover:border-surface-border-bright"
                                             }`}
                                     >
                                         {/* Avatar icon */}
                                         <div className="relative shrink-0">
-                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center border text-lg ${isAdminRole ? "bg-[#5865F2]/20 border-[#5865F2]/30" : "bg-white/5 border-white/10"}`}>
+                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center border text-lg ${isAdminRole ? "bg-social-cobalt-dim border-social-cobalt-border" : "bg-white/5 border-surface-border"}`}>
                                                 {isAdminRole ? "👑" : (mainChar ? "🗡️" : "🛡️")}
                                             </div>
                                             {isOnline && (
-                                                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#121212] rounded-full animate-pulse" />
+                                                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full animate-pulse" />
                                             )}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-bold text-white truncate">
-                                                    {user.display_name || "Unknown"}
+                                                    {user.display_name || (user.Characters?.find((c: any) => c.is_main)?.name) || "Unknown Operative"}
                                                 </span>
                                                 {isCurrentUser && (
-                                                    <span className="text-[9px] text-[#5865F2] font-bold uppercase tracking-wider bg-[#5865F2]/10 border border-[#5865F2]/20 px-1.5 py-0.5 rounded">
+                                                    <span className="text-[9px] text-social-cobalt font-bold uppercase tracking-wider bg-social-cobalt-dim border border-social-cobalt-border px-1.5 py-0.5 rounded">
                                                         You
                                                     </span>
                                                 )}
@@ -141,12 +151,12 @@ export default async function TavernPage() {
                                         </div>
 
                                         <div className="shrink-0 flex items-center gap-1.5">
-                                            <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${isAdminRole ? "bg-[#5865F2]/10 text-[#5865F2] border-[#5865F2]/30" : "bg-white/5 text-gray-500 border-white/10"}`}>
+                                            <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${isAdminRole ? "bg-social-cobalt-dim text-social-cobalt border-social-cobalt-border" : "bg-white/5 text-gray-500 border-surface-border"}`}>
                                                 {user.role}
                                             </span>
                                             <a
                                                 href={`discord://-/users/${user.discord_id}`}
-                                                className="p-1.5 rounded-lg bg-white/5 hover:bg-[#5865F2]/20 text-gray-500 hover:text-[#5865F2] border border-white/5 hover:border-[#5865F2]/30 transition-all opacity-0 group-hover:opacity-100"
+                                                className="p-1.5 rounded-lg bg-white/5 hover:bg-social-cobalt-dim text-gray-500 hover:text-social-cobalt border border-surface-border hover:border-social-cobalt-border transition-all opacity-0 group-hover:opacity-100"
                                                 title="Open in Discord"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">

@@ -81,10 +81,31 @@ async function scrapeHarvests() {
             const [_, time, character, nodeType, holdingName, milestone] = match;
 
             console.log(`Harvest Detected: ${character} @ ${nodeType} in ${holdingName} [${milestone}]`);
+            const timeIso = new Date(time + ' UTC').toISOString();
 
-            // Find or Create Holding/Node and Log Harvest
-            // In a real script, we would query the DB for the holding_id and node_id
+            // Find if this character is one of our registered members
+            const { data: charData } = await supabase
+                .from('Characters')
+                .select('id')
+                .ilike('name', character.trim())
+                .single();
+
+            if (charData) {
+                await supabase
+                    .from('Characters')
+                    .update({ last_harvest: timeIso })
+                    .eq('id', charData.id);
+                console.log(`Recorded harvest for member: ${character}`);
+            }
+
+            // Also keep existing logic to track global holdings info if needed
+            // ...
         }
+
+        // --- NEW: Heartbeat ---
+        await supabase
+            .from("SystemConfig")
+            .upsert({ key: 'last_harvest_scraper_sync', value: 'Success', updated_at: new Date().toISOString() }, { onConflict: 'key' });
 
     } catch (err) {
         console.error("Harvest Scraping Error:", err);

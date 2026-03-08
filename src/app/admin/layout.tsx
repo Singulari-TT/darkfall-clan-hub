@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { supabase } from "@/lib/supabase";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default async function AdminLayout({
     children,
@@ -32,7 +34,14 @@ export default async function AdminLayout({
 
     return (
         <div className="flex flex-col space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans text-gray-300">
-            <div className="border-b border-red-900/50 pb-4">
+            <div className="border-b border-red-900/50 pb-4 flex items-center gap-6">
+                <Link
+                    href="/"
+                    className="p-2.5 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-red-900/30 group"
+                    title="Back to Command"
+                >
+                    <ArrowLeft className="w-5 h-5 text-gray-500 group-hover:text-red-500" />
+                </Link>
                 <h1 className="text-3xl font-heading font-black bg-gradient-to-r from-red-600 to-[#c5a059] bg-clip-text text-transparent uppercase tracking-wider drop-shadow-md">
                     Dreadkrew High Command
                 </h1>
